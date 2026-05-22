@@ -88,7 +88,8 @@ function registerProduct(){
 
     drawing,
     serial,
-    processes
+    processes,
+    status:"processing"
 
   });
 
@@ -142,9 +143,7 @@ function createProcesses(
 
       start,
 
-      end,
-
-      status:"waiting"
+      end
 
     });
 
@@ -155,7 +154,7 @@ function createProcesses(
 }
 
 
-/* 描画 */
+/* 全描画 */
 
 function renderAll(){
 
@@ -175,33 +174,50 @@ function renderAll(){
 function renderProducts(){
 
   const list =
-    document
-      .getElementById("productList");
+    document.getElementById("productList");
 
   list.innerHTML = "";
 
   products.forEach(
     (product,productIndex)=>{
 
+    /* 状態色 */
+
+    let cardClass = "";
+
+    switch(product.status){
+
+      case "processing":
+        cardClass = "card-processing";
+        break;
+
+      case "stop":
+        cardClass = "card-stop";
+        break;
+
+      case "complete":
+        cardClass = "card-complete";
+        break;
+
+      case "hold":
+        cardClass = "card-hold";
+        break;
+
+      default:
+        cardClass = "";
+        break;
+
+    }
+
+    /* 工程名 */
+
     let processHTML = "";
 
-    product.processes.forEach(
-      (proc,processIndex)=>{
+    product.processes.forEach(proc=>{
 
       processHTML += `
 
-        <div
-          class="
-            process-box
-            ${proc.status}
-          "
-          onclick="
-            changeStatus(
-              ${productIndex},
-              ${processIndex}
-            )
-          "
-        >
+        <div class="process-name">
 
           ${proc.name}
 
@@ -215,29 +231,89 @@ function renderProducts(){
       document.createElement("div");
 
     card.className =
-      "product-card";
+      `product-card ${cardClass}`;
 
     card.innerHTML = `
 
-      <div class="product-header">
+      <div class="product-top">
 
-        <div class="drawing">
+        <div class="product-info">
 
-          ${product.drawing}
+          <div class="drawing">
+
+            ${product.drawing}
+
+          </div>
+
+          <div class="serial">
+
+            ${product.serial}
+
+          </div>
 
         </div>
 
-        <div class="serial">
+        <div class="process-list">
 
-          ${product.serial}
+          ${processHTML}
 
         </div>
 
       </div>
 
-      <div class="process-row">
+      <div class="status-buttons">
 
-        ${processHTML}
+        <button
+          onclick="
+            changeProductStatus(
+              ${productIndex},
+              'processing'
+            )
+          "
+        >
+
+          加工中
+
+        </button>
+
+        <button
+          onclick="
+            changeProductStatus(
+              ${productIndex},
+              'stop'
+            )
+          "
+        >
+
+          中断
+
+        </button>
+
+        <button
+          onclick="
+            changeProductStatus(
+              ${productIndex},
+              'complete'
+            )
+          "
+        >
+
+          終了
+
+        </button>
+
+        <button
+          onclick="
+            changeProductStatus(
+              ${productIndex},
+              'hold'
+            )
+          "
+        >
+
+          保留
+
+        </button>
 
       </div>
 
@@ -252,46 +328,13 @@ function renderProducts(){
 
 /* 状態変更 */
 
-function changeStatus(
+function changeProductStatus(
   productIndex,
-  processIndex
+  status
 ){
 
-  const proc =
-    products[productIndex]
-      .processes[processIndex];
-
-  switch(proc.status){
-
-    case "waiting":
-
-      proc.status =
-        "processing";
-
-      break;
-
-    case "processing":
-
-      proc.status =
-        "stop";
-
-      break;
-
-    case "stop":
-
-      proc.status =
-        "complete";
-
-      break;
-
-    case "complete":
-
-      proc.status =
-        "waiting";
-
-      break;
-
-  }
+  products[productIndex].status =
+    status;
 
   renderAll();
 
@@ -322,8 +365,15 @@ function showPage(id){
 function renderTimeline(){
 
   const container =
-    document
-      .getElementById("timelineContainer");
+    document.getElementById(
+      "timelineContainer"
+    );
+
+  if(!container){
+
+    return;
+
+  }
 
   container.innerHTML = "";
 
@@ -430,8 +480,15 @@ function renderTimeline(){
 function renderWeek(){
 
   const container =
-    document
-      .getElementById("weekContainer");
+    document.getElementById(
+      "weekContainer"
+    );
+
+  if(!container){
+
+    return;
+
+  }
 
   container.innerHTML = "";
 
@@ -516,8 +573,15 @@ function renderWeek(){
 function renderMonth(){
 
   const container =
-    document
-      .getElementById("monthContainer");
+    document.getElementById(
+      "monthContainer"
+    );
+
+  if(!container){
+
+    return;
+
+  }
 
   container.innerHTML = "";
 
@@ -602,6 +666,10 @@ function renderMonth(){
   }
 
 }
+
+
+/* ボタン */
+
 document
   .getElementById("registerBtn")
   .addEventListener(
@@ -628,6 +696,6 @@ document
   });
 
 
-/* 初期 */
+/* 初期表示 */
 
 renderAll();
