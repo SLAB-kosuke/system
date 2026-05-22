@@ -23,8 +23,6 @@
 
 <body>
 
-  <!-- ヘッダー -->
-
   <header class="header">
 
     生産管理システム
@@ -32,25 +30,84 @@
   </header>
 
 
-  <!-- 日付選択 -->
+  <!-- 製品登録 -->
 
-  <div class="top-bar">
+  <section class="register-section">
 
-    <input
-      type="date"
-      id="datePicker"
-    >
+    <h2>
 
-    <button onclick="loadViews()">
+      製品登録
 
-      日付表示
+    </h2>
+
+    <div class="form-grid">
+
+      <input
+        type="text"
+        id="drawing"
+        placeholder="図番"
+      >
+
+      <input
+        type="text"
+        id="serial"
+        placeholder="シリアル"
+      >
+
+      <input
+        type="date"
+        id="arrivalDate"
+      >
+
+      <input
+        type="datetime-local"
+        id="startDate"
+      >
+
+      <input
+        type="datetime-local"
+        id="shipmentDate"
+      >
+
+      <input
+        type="text"
+        id="staff"
+        placeholder="担当"
+      >
+
+      <select id="priority">
+
+        <option value="低">
+          低
+        </option>
+
+        <option value="中">
+          中
+        </option>
+
+        <option value="高">
+          高
+        </option>
+
+      </select>
+
+      <textarea
+        id="memo"
+        placeholder="備考"
+      ></textarea>
+
+    </div>
+
+    <button onclick="saveProduct()">
+
+      登録
 
     </button>
 
-  </div>
+  </section>
 
 
-  <!-- 稼働製品 -->
+  <!-- 製品一覧 -->
 
   <section class="product-section">
 
@@ -100,21 +157,29 @@
     class="page active"
   >
 
-    <h2 id="timelineTitle"></h2>
+    <h2>
+
+      3日タイムライン
+
+    </h2>
 
     <div id="timelineContainer"></div>
 
   </section>
 
 
-  <!-- 週間表示 -->
+  <!-- 週間 -->
 
   <section
     id="weekPage"
     class="page"
   >
 
-    <h2 id="weekTitle"></h2>
+    <h2>
+
+      週間表示
+
+    </h2>
 
     <div
       id="weekContainer"
@@ -124,21 +189,23 @@
   </section>
 
 
-  <!-- 月間表示 -->
+  <!-- 月間 -->
 
   <section
     id="monthPage"
     class="page"
   >
 
-    <h2 id="monthTitle"></h2>
+    <h2>
+
+      月間表示
+
+    </h2>
 
     <div id="monthContainer"></div>
 
   </section>
 
-
-  <!-- script -->
 
   <script src="script.js"></script>
 
