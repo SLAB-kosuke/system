@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>生産管理システム</title>
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header class="header">
+    生産管理システム
+  </header>
+
+  <div class="top-bar">
+
+    <input type="date" id="datePicker" />
+
+    <button onclick="loadViews()">
+      日付表示
+    </button>
+
+  </div>
+
+  <section class="product-section">
+
+    <h2>稼働製品一覧</h2>
+
+    <div id="productList" class="product-list"></div>
+
+  </section>
+
+  <section class="button-section">
+
+    <button onclick="showPage('timelinePage')">
+      タイムライン
+    </button>
+
+    <button onclick="showPage('weekPage')">
+      週間表示
+    </button>
+
+    <button onclick="showPage('monthPage')">
+      月間表示
+    </button>
+
+  </section>
+
+  <!-- タイムライン -->
+
+  <section id="timelinePage" class="page active">
+
+    <h2 id="timelineTitle"></h2>
+
+    <div id="timelineContainer"></div>
+
+  </section>
+
+  <!-- 週間 -->
+
+  <section id="weekPage" class="page">
+
+    <h2 id="weekTitle"></h2>
+
+</html>
