@@ -262,3 +262,76 @@ body{
   flex:1;
 
 }
+.product-top{
+
+  display:flex;
+  justify-content:space-between;
+  gap:20px;
+  align-items:flex-start;
+
+}
+
+.process-list{
+
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+
+}
+
+.process-name{
+
+  background:#dbeafe;
+  padding:6px 10px;
+  border-radius:8px;
+  font-size:14px;
+
+}
+
+.status-buttons{
+
+  margin-top:15px;
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+
+}
+
+.status-buttons button{
+
+  border:none;
+  padding:8px 12px;
+  border-radius:8px;
+  cursor:pointer;
+  background:#1d4ed8;
+  color:white;
+
+}
+
+
+/* 状態色 */
+
+.card-processing{
+
+  background:#fde047;
+
+}
+
+.card-stop{
+
+  background:#ef4444;
+  color:white;
+
+}
+
+.card-complete{
+
+  background:white;
+
+}
+
+.card-hold{
+
+  background:#d1d5db;
+
+}
