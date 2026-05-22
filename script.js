@@ -1,25 +1,3 @@
-const products = [
-
-  {
-    drawing: "A-1001",
-    serial: "SN-001",
-    process: "組立"
-  },
-
-  {
-    drawing: "B-2001",
-    serial: "SN-002",
-    process: "検査"
-  },
-
-  {
-    drawing: "C-3001",
-    serial: "SN-003",
-    process: "出荷待ち"
-  }
-
-];
-
 const weekNames = [
   "日",
   "月",
@@ -31,39 +9,237 @@ const weekNames = [
 ];
 
 
+/* 工程マスタ */
+
+const processMaster = {
+
+  "A100":[
+
+    {
+      name:"荒①",
+      hours:36
+    },
+
+    {
+      name:"仕上げ①",
+      hours:4
+    },
+
+    {
+      name:"荒②",
+      hours:8
+    },
+
+    {
+      name:"仕上げ②",
+      hours:2
+    },
+
+    {
+      name:"洗浄・出荷",
+      hours:3.5
+    }
+
+  ]
+
+};
+
+
+/* 製品 */
+
+let products = [];
+
+
+/* 登録 */
+
+function saveProduct(){
+
+  const drawing =
+    document.getElementById("drawing").value;
+
+  const serial =
+    document.getElementById("serial").value;
+
+  const arrivalDate =
+    document.getElementById("arrivalDate").value;
+
+  const startDate =
+    document.getElementById("startDate").value;
+
+  const shipmentDate =
+    document.getElementById("shipmentDate").value;
+
+  const staff =
+    document.getElementById("staff").value;
+
+  const priority =
+    document.getElementById("priority").value;
+
+  const memo =
+    document.getElementById("memo").value;
+
+  if(
+    !drawing ||
+    !serial
+  ){
+
+    alert("図番とシリアルを入力");
+
+    return;
+
+  }
+
+  const processes =
+    createProcesses(
+      drawing,
+      startDate
+    );
+
+  const product = {
+
+    drawing,
+    serial,
+    arrivalDate,
+    startDate,
+    shipmentDate,
+    staff,
+    priority,
+    memo,
+    processes
+
+  };
+
+  products.push(product);
+
+  renderProducts();
+
+  renderTimeline();
+
+  renderWeek();
+
+  renderMonth();
+
+}
+
+
+/* 工程生成 */
+
+function createProcesses(
+  drawing,
+  startDate
+){
+
+  const master =
+    processMaster[drawing] || [];
+
+  let current =
+    new Date(startDate);
+
+  let result = [];
+
+  master.forEach(proc=>{
+
+    const start =
+      new Date(current);
+
+    current.setHours(
+      current.getHours()
+      + proc.hours
+    );
+
+    const end =
+      new Date(current);
+
+    result.push({
+
+      name:proc.name,
+
+      hours:proc.hours,
+
+      start,
+
+      end
+
+    });
+
+  });
+
+  return result;
+
+}
+
+
 /* 製品一覧 */
 
 function renderProducts(){
 
-  const container =
+  const list =
     document.getElementById("productList");
 
-  container.innerHTML = "";
+  list.innerHTML = "";
 
-  products.forEach(item=>{
+  products.forEach(product=>{
+
+    let statusClass =
+      "processing";
+
+    if(product.shipmentDate){
+
+      statusClass =
+        "shipment";
+
+    }else if(product.arrivalDate){
+
+      statusClass =
+        "arrival";
+
+    }
 
     const div =
       document.createElement("div");
 
     div.className =
-      "product-card";
+      `product-card ${statusClass}`;
 
     div.innerHTML = `
-      <div><strong>図番:</strong> ${item.drawing}</div>
-      <div><strong>シリアル:</strong> ${item.serial}</div>
-      <div><strong>工程:</strong> ${item.process}</div>
+
+      <div>
+        <strong>図番:</strong>
+        ${product.drawing}
+      </div>
+
+      <div>
+        <strong>シリアル:</strong>
+        ${product.serial}
+      </div>
+
+      <div>
+        <strong>担当:</strong>
+        ${product.staff}
+      </div>
+
+      <div>
+        <strong>優先:</strong>
+        ${product.priority}
+      </div>
+
+      <div>
+        <strong>備考:</strong>
+        ${product.memo}
+      </div>
+
     `;
 
-    container.appendChild(div);
+    list.appendChild(div);
 
   });
 
 }
 
 
-/* ページ切替 */
+/* ページ */
 
-function showPage(pageId){
+function showPage(id){
 
   document
     .querySelectorAll(".page")
@@ -74,50 +250,29 @@ function showPage(pageId){
     });
 
   document
-    .getElementById(pageId)
+    .getElementById(id)
     .classList.add("active");
-
-}
-
-
-/* 表示更新 */
-
-function loadViews(){
-
-  const selected =
-    document.getElementById("datePicker").value;
-
-  const baseDate =
-    selected
-    ? new Date(selected)
-    : new Date();
-
-  renderTimeline(baseDate);
-
-  renderWeek(baseDate);
-
-  renderMonth(baseDate);
 
 }
 
 
 /* タイムライン */
 
-function renderTimeline(baseDate){
+function renderTimeline(){
 
   const container =
     document.getElementById("timelineContainer");
 
   container.innerHTML = "";
 
-  document.getElementById("timelineTitle")
-    .innerText = "3日間タイムライン";
-
   for(let d=0; d<3; d++){
 
-    const date = new Date(baseDate);
+    const date =
+      new Date();
 
-    date.setDate(baseDate.getDate()+d);
+    date.setDate(
+      date.getDate()+d
+    );
 
     const row =
       document.createElement("div");
@@ -128,12 +283,15 @@ function renderTimeline(baseDate){
     const title =
       document.createElement("div");
 
+    title.className =
+      "timeline-title";
+
     title.innerHTML = `
-      <strong>
+
       ${date.getMonth()+1}月
       ${date.getDate()}日
       (${weekNames[date.getDay()]})
-      </strong>
+
     `;
 
     row.appendChild(title);
@@ -146,15 +304,53 @@ function renderTimeline(baseDate){
 
     for(let h=0; h<24; h++){
 
-      const hour =
+      const box =
         document.createElement("div");
 
-      hour.className =
+      box.className =
         "hour-box";
 
-      hour.innerHTML = `${h}:00`;
+      box.innerHTML =
+        `${h}:00`;
 
-      hours.appendChild(hour);
+      products.forEach(product=>{
+
+        product.processes.forEach(proc=>{
+
+          const start =
+            new Date(proc.start);
+
+          if(
+            start.getDate()
+            === date.getDate()
+            &&
+            start.getHours()
+            === h
+          ){
+
+            const bar =
+              document.createElement("div");
+
+            bar.className =
+              "process-bar";
+
+            bar.innerHTML = `
+
+              ${product.serial}
+              <br>
+              ${proc.name}
+
+            `;
+
+            box.appendChild(bar);
+
+          }
+
+        });
+
+      });
+
+      hours.appendChild(box);
 
     }
 
@@ -167,9 +363,9 @@ function renderTimeline(baseDate){
 }
 
 
-/* 週間表示 */
+/* 週間 */
 
-function renderWeek(baseDate){
+function renderWeek(){
 
   const container =
     document.getElementById("weekContainer");
@@ -177,21 +373,21 @@ function renderWeek(baseDate){
   container.innerHTML = "";
 
   const start =
-    new Date(baseDate);
+    new Date();
 
   start.setDate(
-    baseDate.getDate() - baseDate.getDay()
+    start.getDate()
+    - start.getDay()
   );
-
-  document.getElementById("weekTitle")
-    .innerText = "週間表示";
 
   for(let i=0; i<7; i++){
 
     const date =
       new Date(start);
 
-    date.setDate(start.getDate()+i);
+    date.setDate(
+      start.getDate()+i
+    );
 
     const div =
       document.createElement("div");
@@ -199,16 +395,51 @@ function renderWeek(baseDate){
     div.className =
       "week-day";
 
-    div.innerHTML = `
+    let html = `
+
       <strong>
-      ${date.getMonth()+1}/${date.getDate()}
-      (${weekNames[date.getDay()]})
+
+        ${date.getMonth()+1}/
+        ${date.getDate()}
+        (${weekNames[date.getDay()]})
+
       </strong>
 
       <hr>
 
-      予定なし
     `;
+
+    products.forEach(product=>{
+
+      product.processes.forEach(proc=>{
+
+        const procDate =
+          new Date(proc.start);
+
+        if(
+          procDate.toDateString()
+          === date.toDateString()
+        ){
+
+          html += `
+
+            <div>
+
+              ${product.serial}
+              :
+              ${proc.name}
+
+            </div>
+
+          `;
+
+        }
+
+      });
+
+    });
+
+    div.innerHTML = html;
 
     container.appendChild(div);
 
@@ -217,27 +448,30 @@ function renderWeek(baseDate){
 }
 
 
-/* 月間表示 */
+/* 月間 */
 
-function renderMonth(baseDate){
+function renderMonth(){
 
   const container =
     document.getElementById("monthContainer");
 
   container.innerHTML = "";
 
+  const today =
+    new Date();
+
   const year =
-    baseDate.getFullYear();
+    today.getFullYear();
 
   const month =
-    baseDate.getMonth();
+    today.getMonth();
 
   const lastDate =
-    new Date(year,month+1,0).getDate();
-
-  document.getElementById("monthTitle")
-    .innerText =
-      `${year}年 ${month+1}月`;
+    new Date(
+      year,
+      month+1,
+      0
+    ).getDate();
 
   for(let d=1; d<=lastDate; d++){
 
@@ -250,6 +484,38 @@ function renderMonth(baseDate){
     row.className =
       "month-row";
 
+    let events = "";
+
+    products.forEach(product=>{
+
+      product.processes.forEach(proc=>{
+
+        const procDate =
+          new Date(proc.start);
+
+        if(
+          procDate.getDate()
+          === d
+        ){
+
+          events += `
+
+            <div>
+
+              ${product.serial}
+              :
+              ${proc.name}
+
+            </div>
+
+          `;
+
+        }
+
+      });
+
+    });
+
     row.innerHTML = `
 
       <div class="month-date">
@@ -261,7 +527,7 @@ function renderMonth(baseDate){
 
       <div class="month-events">
 
-        予定なし
+        ${events}
 
       </div>
 
@@ -274,12 +540,16 @@ function renderMonth(baseDate){
 }
 
 
-/* 初期表示 */
+/* 初期 */
 
 window.onload = function(){
 
   renderProducts();
 
-  loadViews();
+  renderTimeline();
+
+  renderWeek();
+
+  renderMonth();
 
 };
