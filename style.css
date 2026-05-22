@@ -1,0 +1,67 @@
+body{
+  padding:12px;
+  border:none;
+  background:#1d4ed8;
+  color:white;
+  border-radius:10px;
+  cursor:pointer;
+}
+
+.page{
+  display:none;
+  margin:10px;
+  background:white;
+  padding:15px;
+  border-radius:12px;
+}
+
+.page.active{
+  display:block;
+}
+
+.timeline-row{
+  border-bottom:1px solid #ddd;
+  padding:10px 0;
+}
+
+.timeline-hours{
+  display:grid;
+  grid-template-columns:repeat(24,1fr);
+  gap:2px;
+}
+
+.hour-box{
+  background:#dbeafe;
+  min-height:50px;
+  font-size:10px;
+  text-align:center;
+  padding-top:5px;
+}
+
+.week-grid{
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:5px;
+}
+
+.week-day{
+  background:#dbeafe;
+  min-height:120px;
+  border-radius:8px;
+  padding:8px;
+}
+
+.month-row{
+  display:flex;
+  border-bottom:1px solid #ddd;
+  padding:8px 0;
+}
+
+.month-date{
+  width:140px;
+  font-weight:bold;
+}
+
+.month-events{
+  flex:1;
+}
