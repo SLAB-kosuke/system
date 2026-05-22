@@ -48,7 +48,7 @@
       placeholder="シリアル"
     >
 
-    <button onclick="registerProduct()">
+    <button id="registerBtn">
 
       製品登録
 
@@ -72,23 +72,23 @@
   </section>
 
 
-  <!-- ページ切替 -->
+  <!-- メニュー -->
 
   <section class="menu-section">
 
-    <button onclick="showPage('timelinePage')">
+    <button data-page="timelinePage">
 
       タイムライン
 
     </button>
 
-    <button onclick="showPage('weekPage')">
+    <button data-page="weekPage">
 
       週間表示
 
     </button>
 
-    <button onclick="showPage('monthPage')">
+    <button data-page="monthPage">
 
       月間表示
 
