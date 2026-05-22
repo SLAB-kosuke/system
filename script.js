@@ -1,56 +1,63 @@
 const products = [
-
+  {
+    drawing: "A-1001",
+    serial: "SN-001",
+    process: "組立"
+  },
+  {
+    drawing: "B-2001",
+    serial: "SN-002",
+    process: "検査"
+  },
+  {
+    drawing: "C-3001",
+    serial: "SN-003",
+    process: "出荷待ち"
   }
+];
 
-}
+const weekNames = [
+  "日",
+  "月",
+  "火",
+  "水",
+  "木",
+  "金",
+  "土"
+];
 
-function renderMonth(baseDate){
+function renderProducts(){
 
   const container =
-    document.getElementById("monthContainer");
+    document.getElementById("productList");
 
   container.innerHTML = "";
 
-  const year =
-    baseDate.getFullYear();
+  products.forEach(item=>{
 
-  const month =
-    baseDate.getMonth();
-
-  const lastDate =
-    new Date(year,month+1,0).getDate();
-
-  document.getElementById("monthTitle")
-    .innerText = `${year}年 ${month+1}月`;
-
-  for(let d=1; d<=lastDate; d++){
-
-    const date =
-      new Date(year,month,d);
-
-    const row =
+    const div =
       document.createElement("div");
 
-    row.className =
-      "month-row";
+    div.className =
+      "product-card";
 
-    row.innerHTML = `
-      <div class="month-date">
-        ${month+1}/${d}
-        (${weekNames[date.getDay()]})
-      </div>
-
-      <div class="month-events">
-        予定なし
-      </div>
+    div.innerHTML = `
+      <div><strong>図番:</strong> ${item.drawing}</div>
+      <div><strong>シリアル:</strong> ${item.serial}</div>
+      <div><strong>工程:</strong> ${item.process}</div>
     `;
 
-    container.appendChild(row);
+    container.appendChild(div);
 
-  }
+  });
 
 }
 
-renderProducts();
+function showPage(pageId){
 
+  document
+    .querySelectorAll(".page")
+    .forEach(page=>{
+
+      page.classList.remove("active");
 loadViews();
