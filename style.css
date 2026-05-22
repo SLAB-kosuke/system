@@ -1,7 +1,6 @@
 body{
 
   margin:0;
-  padding:0;
   background:#f3f4f6;
   font-family:sans-serif;
 
@@ -11,8 +10,8 @@ body{
 
   background:#1d4ed8;
   color:white;
-  text-align:center;
   padding:15px;
+  text-align:center;
   font-size:28px;
   font-weight:bold;
 
@@ -23,16 +22,17 @@ body{
   display:flex;
   gap:10px;
   padding:15px;
+  flex-wrap:wrap;
 
 }
 
 .top-section input{
 
   flex:1;
+  min-width:180px;
   padding:12px;
   border-radius:10px;
   border:1px solid #ccc;
-  font-size:16px;
 
 }
 
@@ -43,23 +43,61 @@ body{
   border-radius:10px;
   background:#2563eb;
   color:white;
-  font-size:16px;
   cursor:pointer;
 
 }
 
-#productList{
+.list-section,
+.page{
 
-  padding:10px;
+  background:white;
+  margin:10px;
+  padding:15px;
+  border-radius:12px;
 
 }
 
+.menu-section{
+
+  display:flex;
+  gap:10px;
+  margin:10px;
+
+}
+
+.menu-section button{
+
+  flex:1;
+  padding:12px;
+  border:none;
+  border-radius:10px;
+  background:#1d4ed8;
+  color:white;
+  cursor:pointer;
+
+}
+
+.page{
+
+  display:none;
+
+}
+
+.page.active{
+
+  display:block;
+
+}
+
+
+/* 製品 */
+
 .product-card{
 
-  background:white;
-  border-radius:14px;
-  margin-bottom:12px;
+  background:#fff;
+  border-radius:12px;
   padding:15px;
+  margin-bottom:12px;
   box-shadow:
     0 2px 5px rgba(0,0,0,0.1);
 
@@ -67,13 +105,13 @@ body{
 
 .product-header{
 
-  margin-bottom:12px;
+  margin-bottom:10px;
 
 }
 
 .drawing{
 
-  font-size:24px;
+  font-size:22px;
   font-weight:bold;
 
 }
@@ -81,9 +119,11 @@ body{
 .serial{
 
   color:#666;
-  margin-top:5px;
 
 }
+
+
+/* 工程 */
 
 .process-row{
 
@@ -95,12 +135,12 @@ body{
 
 .process-box{
 
-  min-width:100px;
+  min-width:110px;
   text-align:center;
   padding:10px;
   border-radius:10px;
-  cursor:pointer;
   border:2px solid #ddd;
+  cursor:pointer;
   font-weight:bold;
 
 }
@@ -127,5 +167,98 @@ body{
 .complete{
 
   background:white;
+
+}
+
+
+/* タイムライン */
+
+.timeline-row{
+
+  margin-bottom:25px;
+
+}
+
+.timeline-title{
+
+  font-weight:bold;
+  margin-bottom:8px;
+
+}
+
+.timeline-hours{
+
+  display:grid;
+  grid-template-columns:
+    repeat(24,1fr);
+
+  gap:2px;
+
+}
+
+.hour-box{
+
+  background:#dbeafe;
+  min-height:70px;
+  border-radius:5px;
+  font-size:10px;
+  padding:2px;
+
+}
+
+.process-bar{
+
+  background:#2563eb;
+  color:white;
+  border-radius:4px;
+  margin-top:4px;
+  padding:2px;
+  font-size:10px;
+
+}
+
+
+/* 週間 */
+
+.week-grid{
+
+  display:grid;
+  grid-template-columns:
+    repeat(7,1fr);
+
+  gap:5px;
+
+}
+
+.week-day{
+
+  background:#e0f2fe;
+  border-radius:10px;
+  min-height:150px;
+  padding:8px;
+
+}
+
+
+/* 月間 */
+
+.month-row{
+
+  display:flex;
+  border-bottom:1px solid #ddd;
+  padding:8px 0;
+
+}
+
+.month-date{
+
+  width:180px;
+  font-weight:bold;
+
+}
+
+.month-events{
+
+  flex:1;
 
 }
