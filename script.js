@@ -602,6 +602,30 @@ function renderMonth(){
   }
 
 }
+document
+  .getElementById("registerBtn")
+  .addEventListener(
+    "click",
+    registerProduct
+  );
+
+
+document
+  .querySelectorAll("[data-page]")
+  .forEach(btn=>{
+
+    btn.addEventListener(
+      "click",
+      ()=>{
+
+        showPage(
+          btn.dataset.page
+        );
+
+      }
+    );
+
+  });
 
 
 /* 初期 */
