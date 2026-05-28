@@ -1,13 +1,6 @@
 const weekNames = [
-  "日",
-  "月",
-  "火",
-  "水",
-  "木",
-  "金",
-  "土"
+  "日","月","火","水","木","金","土"
 ];
-
 
 /* 工程マスタ */
 
@@ -67,8 +60,7 @@ function startQR(){
 
   if(!qr){
 
-    qr =
-      new Html5Qrcode("reader");
+    qr = new Html5Qrcode("reader");
 
   }
 
@@ -91,19 +83,12 @@ function startQR(){
 
       });
 
-      /*
-        QR例
-
-        A100,S001
-      */
-
       const data =
         qrText.split(",");
 
       if(data.length < 2){
 
         alert("QR形式エラー");
-
         return;
 
       }
@@ -111,20 +96,12 @@ function startQR(){
       document
         .getElementById("drawingInput")
         .value =
-          data[0];
+        data[0];
 
       document
         .getElementById("serialInput")
         .value =
-          data[1];
-
-     document
-  .getElementById("drawingInput")
-  .value = data[0];
-
-document
-  .getElementById("serialInput")
-  .value = data[1];
+        data[1];
 
     },
 
@@ -157,7 +134,6 @@ function registerProduct(){
   if(!drawing || !serial){
 
     alert("図番とシリアル入力");
-
     return;
 
   }
@@ -165,7 +141,6 @@ function registerProduct(){
   if(!processMaster[drawing]){
 
     alert("工程マスタ未登録");
-
     return;
 
   }
@@ -225,7 +200,8 @@ function createProcesses(drawing){
       hours:proc.hours,
       start,
       end,
-      status:""
+      status:"",
+      actualStart:null
 
     });
 
@@ -241,11 +217,8 @@ function createProcesses(drawing){
 function renderAll(){
 
   renderProducts();
-
   renderTimeline();
-
   renderWeek();
-
   renderMonth();
 
 }
@@ -261,9 +234,7 @@ function renderProducts(){
     );
 
   if(!list){
-
     return;
-
   }
 
   list.innerHTML = "";
@@ -313,15 +284,11 @@ function renderProducts(){
           <div>
 
             <div class="drawing">
-
               ${product.drawing}
-
             </div>
 
             <div class="serial">
-
               ${product.serial}
-
             </div>
 
           </div>
@@ -329,9 +296,7 @@ function renderProducts(){
         </div>
 
         <div class="process-row">
-
           ${processHTML}
-
         </div>
 
         <div
@@ -454,17 +419,29 @@ function changeProcessStatus(
   if(
     selectedProcessIndex === null
   ){
-
     return;
-
   }
 
-  products
-    [productIndex]
-    .processes
-    [selectedProcessIndex]
-    .status =
-      status;
+  const proc =
+    products
+      [productIndex]
+      .processes
+      [selectedProcessIndex];
+
+  proc.status = status;
+
+  /* 開始時間記録 */
+
+  if(
+    status === "processing"
+    &&
+    !proc.actualStart
+  ){
+
+    proc.actualStart =
+      new Date();
+
+  }
 
   renderAll();
 
@@ -491,8 +468,7 @@ function showPage(id){
   if(target){
 
     target.classList.add(
-      "active"
-    );
+      "active";
 
   }
 
@@ -509,9 +485,7 @@ function renderTimeline(){
     );
 
   if(!container){
-
     return;
-
   }
 
   container.innerHTML = "";
@@ -565,18 +539,18 @@ function renderTimeline(){
         `<div>${h}</div>`;
 
       products.forEach(product=>{
-       product.processes.forEach(proc=>{
- 　　 if(!proc.status){
-      return;
-    }
+
+        product.processes.forEach(proc=>{
+
+          if(!proc.actualStart){
+            return;
+          }
+
           const start =
-            new Date(proc.start);
+            new Date(proc.actualStart);
 
           const end =
             new Date(proc.end);
-
-          const startHour =
-            start.getHours();
 
           const targetDate =
             new Date(date);
@@ -588,80 +562,25 @@ function renderTimeline(){
             0
           );
 
-         if(
-  proc.status === "processing" ||
-  proc.status === "stop" ||
-  proc.status === "complete" ||
-  proc.status === "hold"
-)
-          {
+          if(
+            targetDate >= start
+            &&
+            targetDate <= end
+          ){
+
             const bar =
               document.createElement("div");
 
-            let statusClass = "";
+            bar.className =
+              `process-bar ${proc.status}`;
 
-            switch(proc.status){
+            bar.innerHTML = `
 
-              case "processing":
-                statusClass =
-                  "processing";
-                break;
+              ${product.serial}
+              <br>
+              ${proc.name}
 
-              case "stop":
-                statusClass =
-                  "stop";
-                break;
-
-              case "complete":
-                statusClass =
-                  "complete";
-                break;
-
-              case "hold":
-                statusClass =
-                  "hold";
-                break;
-
-              default:
-                statusClass =
-                  "";
-                break;
-
-            }
-
-            bar.className = `
-              process-bar
-              ${statusClass}
             `;
-
-            if(
-              targetDate.getTime()
-              ===
-              new Date(
-                start.getFullYear(),
-                start.getMonth(),
-                start.getDate(),
-                startHour
-              ).getTime()
-            ){
-
-              bar.innerHTML = `
-
-                ${product.serial}
-                <br>
-                ${proc.name}
-
-              `;
-
-            }else{
-
-              bar.innerHTML = `
-
-                ${product.serial}
-
-              `;
-
-            }
 
             box.appendChild(bar);
 
@@ -686,195 +605,12 @@ function renderTimeline(){
 
 /* 週間 */
 
-function renderWeek(){
-
-  const container =
-    document.getElementById(
-      "weekContainer"
-    );
-
-  if(!container){
-
-    return;
-
-  }
-
-  container.innerHTML = "";
-
-  const start =
-    new Date();
-
-  start.setDate(
-    start.getDate()
-    - start.getDay()
-  );
-
-  for(let i=0; i<7; i++){
-
-    const date =
-      new Date(start);
-
-    date.setDate(
-      start.getDate()+i
-    );
-
-    const div =
-      document.createElement("div");
-
-    div.className =
-      "week-day";
-
-    let html = `
-
-      <strong>
-
-        ${date.getMonth()+1}/
-        ${date.getDate()}
-        (${weekNames[date.getDay()]})
-
-      </strong>
-
-      <hr>
-
-    `;
-
-    products.forEach(product=>{
-
-      product.processes.forEach(proc=>{
-
-        const procDate =
-          new Date(proc.start);
-
-        if(
-          procDate.toDateString()
-          === date.toDateString()
-        ){
-
-          html += `
-
-            <div>
-
-              ${product.serial}
-              :
-              ${proc.name}
-
-            </div>
-
-          `;
-
-        }
-
-      });
-
-    });
-
-    div.innerHTML = html;
-
-    container.appendChild(div);
-
-  }
-
-}
+function renderWeek(){}
 
 
 /* 月間 */
 
-function renderMonth(){
-
-  const container =
-    document.getElementById(
-      "monthContainer"
-    );
-
-  if(!container){
-
-    return;
-
-  }
-
-  container.innerHTML = "";
-
-  const today =
-    new Date();
-
-  const year =
-    today.getFullYear();
-
-  const month =
-    today.getMonth();
-
-  const lastDate =
-    new Date(
-      year,
-      month+1,
-      0
-    ).getDate();
-
-  for(let d=1; d<=lastDate; d++){
-
-    const date =
-      new Date(year,month,d);
-
-    const row =
-      document.createElement("div");
-
-    row.className =
-      "month-row";
-
-    let events = "";
-
-    products.forEach(product=>{
-
-      product.processes.forEach(proc=>{
-
-        const procDate =
-          new Date(proc.start);
-
-        if(
-          procDate.getDate()
-          === d
-        ){
-
-          events += `
-
-            <div>
-
-              ${product.serial}
-              :
-              ${proc.name}
-
-            </div>
-
-          `;
-
-        }
-
-      });
-
-    });
-
-    row.innerHTML = `
-
-      <div class="month-date">
-
-        ${month+1}/${d}
-        (${weekNames[date.getDay()]})
-
-      </div>
-
-      <div class="month-events">
-
-        ${events}
-
-      </div>
-
-    `;
-
-    container.appendChild(row);
-
-  }
-
-}
+function renderMonth(){}
 
 
 /* 登録ボタン */
