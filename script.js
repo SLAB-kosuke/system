@@ -508,7 +508,7 @@ function renderTimeline(){
         const targetDate =
   new Date(date);
 
-targetDate.setHours(h);
+targetDate.setHours(
 　h,
   0,
   0,
