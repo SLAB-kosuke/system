@@ -111,6 +111,76 @@ function registerProduct(){
 
   renderAll();
 
+/* QR */
+
+const qr =
+  new Html5Qrcode("reader");
+
+
+document
+  .getElementById("scanBtn")
+  .addEventListener(
+    "click",
+    startQR
+  );
+
+
+function startQR(){
+
+  qr.start(
+
+    {
+      facingMode:"environment"
+    },
+
+    {
+      fps:10,
+      qrbox:250
+    },
+
+    qrText=>{
+
+      qr.stop();
+
+      /*
+        QR内容
+
+        A100,S001
+      */
+
+      const data =
+        qrText.split(",");
+
+      if(data.length < 2){
+
+        alert("QR形式エラー");
+
+        return;
+
+      }
+
+      document
+        .getElementById("drawingInput")
+        .value =
+          data[0];
+
+      document
+        .getElementById("serialInput")
+        .value =
+          data[1];
+
+      registerProduct();
+
+    },
+
+    error=>{
+
+    }
+
+  );
+
+}
+  
 }
 
 
