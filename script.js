@@ -45,12 +45,19 @@ const processMaster = {
 };
 
 
-/* 製品 */
+/* 製品データ */
 
 let products = [];
 
 
-/* 登録 */
+/* 選択中 */
+
+let selectedProductIndex = null;
+
+let selectedProcessIndex = null;
+
+
+/* 製品登録 */
 
 function registerProduct(){
 
@@ -58,7 +65,8 @@ function registerProduct(){
     document
       .getElementById("drawingInput")
       .value
-      .trim();
+      .trim()
+      .toUpperCase();
 
   const serial =
     document
@@ -74,14 +82,18 @@ function registerProduct(){
 
   }
 
-  const start =
-    new Date();
+  /* 図番存在確認 */
+
+  if(!processMaster[drawing]){
+
+    alert("工程マスタ未登録");
+
+    return;
+
+  }
 
   const processes =
-    createProcesses(
-      drawing,
-      start
-    );
+    createProcesses(drawing);
 
   products.push({
 
@@ -106,17 +118,13 @@ function registerProduct(){
 
 /* 工程生成 */
 
-function createProcesses(
-  drawing,
-  startDate
-){
+function createProcesses(drawing){
 
   const master =
-    processMaster[drawing]
-    || [];
+    processMaster[drawing];
 
   let current =
-    new Date(startDate);
+    new Date();
 
   let result = [];
 
@@ -154,7 +162,7 @@ function createProcesses(
 }
 
 
-/* 全描画 */
+/* 全更新 */
 
 function renderAll(){
 
@@ -178,10 +186,22 @@ function renderProducts(){
       "productList"
     );
 
+  if(!list){
+
+    return;
+
+  }
+
   list.innerHTML = "";
 
   products.forEach(
     (product,productIndex)=>{
+
+    const card =
+      document.createElement("div");
+
+    card.className =
+      "product-card";
 
     let processHTML = "";
 
@@ -211,12 +231,6 @@ function renderProducts(){
       `;
 
     });
-
-    const card =
-      document.createElement("div");
-
-    card.className =
-      "product-card";
 
     card.innerHTML = `
 
@@ -248,9 +262,7 @@ function renderProducts(){
 
       <div
         class="status-buttons"
-        id="
-          status-${productIndex}
-        "
+        id="status-${productIndex}"
       >
 
         <button
@@ -261,9 +273,7 @@ function renderProducts(){
             )
           "
         >
-
           加工中
-
         </button>
 
         <button
@@ -274,9 +284,7 @@ function renderProducts(){
             )
           "
         >
-
           中断
-
         </button>
 
         <button
@@ -287,9 +295,7 @@ function renderProducts(){
             )
           "
         >
-
           完了
-
         </button>
 
         <button
@@ -300,9 +306,7 @@ function renderProducts(){
             )
           "
         >
-
           保留
-
         </button>
 
       </div>
@@ -314,13 +318,6 @@ function renderProducts(){
   });
 
 }
-
-
-/* 選択中工程 */
-
-let selectedProductIndex = null;
-
-let selectedProcessIndex = null;
 
 
 /* 状態ボタン表示 */
@@ -351,13 +348,17 @@ function openStatusButtons(
       `status-${productIndex}`
     );
 
-  target.style.display =
-    "flex";
+  if(target){
+
+    target.style.display =
+      "flex";
+
+  }
 
 }
 
 
-/* 状態変更 */
+/* 工程状態変更 */
 
 function changeProcessStatus(
   productIndex,
@@ -376,13 +377,8 @@ function changeProcessStatus(
     [productIndex]
     .processes
     [selectedProcessIndex]
-    .status = status;
-
-  document
-    .getElementById(
-      `status-${productIndex}`
-    )
-    .style.display = "none";
+    .status =
+      status;
 
   renderAll();
 
@@ -403,9 +399,16 @@ function showPage(id){
 
     });
 
-  document
-    .getElementById(id)
-    .classList.add("active");
+  const target =
+    document.getElementById(id);
+
+  if(target){
+
+    target.classList.add(
+      "active"
+    );
+
+  }
 
 }
 
@@ -718,7 +721,7 @@ function renderMonth(){
 }
 
 
-/* ボタン */
+/* 登録ボタン */
 
 document
   .getElementById("registerBtn")
@@ -727,6 +730,8 @@ document
     registerProduct
   );
 
+
+/* ページ切替ボタン */
 
 document
   .querySelectorAll("[data-page]")
@@ -746,7 +751,6 @@ document
   });
 
 
-/* 初期表示 */
+/* 初期描画 */
 
 renderAll();
-```
