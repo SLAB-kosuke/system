@@ -50,7 +50,7 @@ const processMaster = {
 let products = [];
 
 
-/* 選択中 */
+/* 選択中工程 */
 
 let selectedProductIndex = null;
 
@@ -81,8 +81,6 @@ function registerProduct(){
     return;
 
   }
-
-  /* 図番存在確認 */
 
   if(!processMaster[drawing]){
 
@@ -358,7 +356,7 @@ function openStatusButtons(
 }
 
 
-/* 工程状態変更 */
+/* 状態変更 */
 
 function changeProcessStatus(
   productIndex,
@@ -413,7 +411,7 @@ function showPage(id){
 }
 
 
-/* タイムライン */
+/* ガントチャート */
 
 function renderTimeline(){
 
@@ -476,7 +474,7 @@ function renderTimeline(){
         "hour-box";
 
       box.innerHTML =
-        `${h}:00`;
+        `<div>${h}</div>`;
 
       products.forEach(product=>{
 
@@ -485,27 +483,82 @@ function renderTimeline(){
           const start =
             new Date(proc.start);
 
+          const end =
+            new Date(proc.end);
+
+          const sameDay =
+
+            start.toDateString()
+            === date.toDateString();
+
+          if(!sameDay){
+
+            return;
+
+          }
+
+          const startHour =
+            start.getHours();
+
+          const endHour =
+            end.getHours();
+
           if(
-            start.getDate()
-            === date.getDate()
+            h >= startHour
             &&
-            start.getHours()
-            === h
+            h <= endHour
           ){
 
             const bar =
               document.createElement("div");
 
-            bar.className =
-              "process-bar";
+            let statusClass = "";
 
-            bar.innerHTML = `
+            switch(proc.status){
 
-              ${product.serial}
-              <br>
-              ${proc.name}
+              case "processing":
+                statusClass =
+                  "processing";
+                break;
 
+              case "stop":
+                statusClass =
+                  "stop";
+                break;
+
+              case "complete":
+                statusClass =
+                  "complete";
+                break;
+
+              case "hold":
+                statusClass =
+                  "hold";
+                break;
+
+              default:
+                statusClass =
+                  "";
+                break;
+
+            }
+
+            bar.className = `
+              process-bar
+              ${statusClass}
             `;
+
+            if(h === startHour){
+
+              bar.innerHTML = `
+
+                ${product.serial}
+                <br>
+                ${proc.name}
+
+              `;
+
+            }
 
             box.appendChild(bar);
 
@@ -731,7 +784,7 @@ document
   );
 
 
-/* ページ切替ボタン */
+/* ページ切替 */
 
 document
   .querySelectorAll("[data-page]")
@@ -751,6 +804,6 @@ document
   });
 
 
-/* 初期描画 */
+/* 初期表示 */
 
 renderAll();
