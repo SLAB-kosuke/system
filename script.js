@@ -574,13 +574,35 @@ if(
 
             {
 
-              bar.innerHTML = `
+            ```javascript id="hy4g2n"
+if(
+  targetDate.getTime()
+  ===
+  new Date(
+    start.getFullYear(),
+    start.getMonth(),
+    start.getDate(),
+    startHour
+  ).getTime()
+){
 
-                ${product.serial}
-                <br>
-                ${proc.name}
+  bar.innerHTML = `
 
-              `;
+    ${product.serial}
+    <br>
+    ${proc.name}
+
+  `;
+
+}else{
+
+  bar.innerHTML = `
+
+    ${product.serial}
+
+  `;
+
+}
 
             }
 
