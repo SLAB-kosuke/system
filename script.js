@@ -60,6 +60,7 @@ let selectedProcessIndex = null;
 
 let qr = null;
 
+
 /* QR開始 */
 
 function startQR(){
@@ -84,7 +85,17 @@ function startQR(){
 
     qrText=>{
 
-      qr.stop();
+      qr.stop().then(()=>{
+
+        qr.clear();
+
+      });
+
+      /*
+        QR例
+
+        A100,S001
+      */
 
       const data =
         qrText.split(",");
@@ -118,6 +129,7 @@ function startQR(){
   );
 
 }
+
 
 /* 製品登録 */
 
@@ -400,7 +412,8 @@ function openStatusButtons(
     )
     .forEach(el=>{
 
-      el.style.display = "none";
+      el.style.display =
+        "none";
 
     });
 
