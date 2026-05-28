@@ -307,6 +307,18 @@ function renderProducts(){
           保留
         </button>
 
+  <button
+  onclick="
+    changeProcessStatus(
+      ${productIndex},
+      ''
+    )
+  "
+>
+  クリア
+</button>
+
+
       </div>
 
     `;
@@ -381,7 +393,6 @@ function changeProcessStatus(
   renderAll();
 
 }
-
 
 /* ページ切替 */
 
