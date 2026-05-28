@@ -565,9 +565,10 @@ function renderTimeline(){
         `<div>${h}</div>`;
 
       products.forEach(product=>{
-
-        product.processes.forEach(proc=>{
-
+       product.processes.forEach(proc=>{
+ 　　 if(!proc.status){
+      return;
+    }
           const start =
             new Date(proc.start);
 
