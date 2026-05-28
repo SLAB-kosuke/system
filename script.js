@@ -1,4 +1,3 @@
-```javascript id="4c17mo"
 const weekNames = [
   "日",
   "月",
