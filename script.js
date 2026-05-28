@@ -53,8 +53,71 @@ let products = [];
 /* 選択中工程 */
 
 let selectedProductIndex = null;
-
 let selectedProcessIndex = null;
+
+
+/* QR */
+
+const qr =
+  new Html5Qrcode("reader");
+
+
+/* QR開始 */
+
+function startQR(){
+
+  qr.start(
+
+    {
+      facingMode:"environment"
+    },
+
+    {
+      fps:10,
+      qrbox:250
+    },
+
+    qrText=>{
+
+      qr.stop();
+
+      /*
+        QR例
+        A100,S001
+      */
+
+      const data =
+        qrText.split(",");
+
+      if(data.length < 2){
+
+        alert("QR形式エラー");
+
+        return;
+
+      }
+
+      document
+        .getElementById("drawingInput")
+        .value =
+          data[0];
+
+      document
+        .getElementById("serialInput")
+        .value =
+          data[1];
+
+      registerProduct();
+
+    },
+
+    error=>{
+
+    }
+
+  );
+
+}
 
 
 /* 製品登録 */
@@ -111,69 +174,8 @@ function registerProduct(){
 
   renderAll();
 
-/* QR */
-
-const qr =
-  new Html5Qrcode("reader");
-
-
-document
-  .getElementById("scanBtn")
-  .addEventListener(
-    "click",
-    startQR
-  );
-
-
-function startQR(){
-
-  qr.start(
-
-    {
-      facingMode:"environment"
-    },
-
-    {
-      fps:10,
-      qrbox:250
-    },
-
-    qrText=>{
-
-      qr.stop();
-
-      const data =
-        qrText.split(",");
-
-      if(data.length < 2){
-
-        alert("QR形式エラー");
-
-        return;
-
-      }
-
-      document
-        .getElementById("drawingInput")
-        .value =
-          data[0];
-
-      document
-        .getElementById("serialInput")
-        .value =
-          data[1];
-
-      registerProduct();
-
-    },
-
-    error=>{
-
-    }
-
-  );
-
 }
+
 
 /* 工程生成 */
 
@@ -203,13 +205,9 @@ function createProcesses(drawing){
     result.push({
 
       name:proc.name,
-
       hours:proc.hours,
-
       start,
-
       end,
-
       status:""
 
     });
@@ -256,137 +254,136 @@ function renderProducts(){
   products.forEach(
     (product,productIndex)=>{
 
-    const card =
-      document.createElement("div");
+      const card =
+        document.createElement("div");
 
-    card.className =
-      "product-card";
+      card.className =
+        "product-card";
 
-    let processHTML = "";
+      let processHTML = "";
 
-    product.processes.forEach(
-      (proc,processIndex)=>{
+      product.processes.forEach(
+        (proc,processIndex)=>{
 
-      processHTML += `
+          processHTML += `
+
+            <div
+              class="
+                process-box
+                ${proc.status}
+              "
+
+              onclick="
+                openStatusButtons(
+                  ${productIndex},
+                  ${processIndex}
+                )
+              "
+            >
+
+              ${proc.name}
+
+            </div>
+
+          `;
+
+        });
+
+      card.innerHTML = `
+
+        <div class="product-top">
+
+          <div>
+
+            <div class="drawing">
+
+              ${product.drawing}
+
+            </div>
+
+            <div class="serial">
+
+              ${product.serial}
+
+            </div>
+
+          </div>
+
+        </div>
+
+        <div class="process-row">
+
+          ${processHTML}
+
+        </div>
 
         <div
-          class="
-            process-box
-            ${proc.status}
-          "
-
-          onclick="
-            openStatusButtons(
-              ${productIndex},
-              ${processIndex}
-            )
-          "
+          class="status-buttons"
+          id="status-${productIndex}"
         >
 
-          ${proc.name}
+          <button
+            onclick="
+              changeProcessStatus(
+                ${productIndex},
+                'processing'
+              )
+            "
+          >
+            加工中
+          </button>
+
+          <button
+            onclick="
+              changeProcessStatus(
+                ${productIndex},
+                'stop'
+              )
+            "
+          >
+            中断
+          </button>
+
+          <button
+            onclick="
+              changeProcessStatus(
+                ${productIndex},
+                'complete'
+              )
+            "
+          >
+            完了
+          </button>
+
+          <button
+            onclick="
+              changeProcessStatus(
+                ${productIndex},
+                'hold'
+              )
+            "
+          >
+            保留
+          </button>
+
+          <button
+            onclick="
+              changeProcessStatus(
+                ${productIndex},
+                ''
+              )
+            "
+          >
+            クリア
+          </button>
 
         </div>
 
       `;
 
+      list.appendChild(card);
+
     });
-
-    card.innerHTML = `
-
-      <div class="product-top">
-
-        <div>
-
-          <div class="drawing">
-
-            ${product.drawing}
-
-          </div>
-
-          <div class="serial">
-
-            ${product.serial}
-
-          </div>
-
-        </div>
-
-      </div>
-
-      <div class="process-row">
-
-        ${processHTML}
-
-      </div>
-
-      <div
-        class="status-buttons"
-        id="status-${productIndex}"
-      >
-
-        <button
-          onclick="
-            changeProcessStatus(
-              ${productIndex},
-              'processing'
-            )
-          "
-        >
-          加工中
-        </button>
-
-        <button
-          onclick="
-            changeProcessStatus(
-              ${productIndex},
-              'stop'
-            )
-          "
-        >
-          中断
-        </button>
-
-        <button
-          onclick="
-            changeProcessStatus(
-              ${productIndex},
-              'complete'
-            )
-          "
-        >
-          完了
-        </button>
-
-        <button
-          onclick="
-            changeProcessStatus(
-              ${productIndex},
-              'hold'
-            )
-          "
-        >
-          保留
-        </button>
-
-  <button
-  onclick="
-    changeProcessStatus(
-      ${productIndex},
-      ''
-    )
-  "
->
-  クリア
-</button>
-
-
-      </div>
-
-    `;
-
-    list.appendChild(card);
-
-  });
 
 }
 
@@ -454,6 +451,7 @@ function changeProcessStatus(
   renderAll();
 
 }
+
 
 /* ページ切替 */
 
@@ -558,30 +556,24 @@ function renderTimeline(){
           const end =
             new Date(proc.end);
 
-      
-
           const startHour =
             start.getHours();
 
-          const endHour =
-            end.getHours();
+          const targetDate =
+            new Date(date);
 
-        const targetDate =
-  new Date(date);
+          targetDate.setHours(
+            h,
+            0,
+            0,
+            0
+          );
 
-targetDate.setHours(
-  h,
-  0,
-  0,
-  0 
-  );
-if(
-  targetDate >= start
-  &&
-  targetDate <= end
-)
-
-          {
+          if(
+            targetDate >= start
+            &&
+            targetDate <= end
+          ){
 
             const bar =
               document.createElement("div");
@@ -622,48 +614,32 @@ if(
               ${statusClass}
             `;
 
-          if(
-  targetDate.getTime()
-  ===
-  new Date(
-    start.getFullYear(),
-    start.getMonth(),
-    start.getDate(),
-    startHour
-  ).getTime()
-)
+            if(
+              targetDate.getTime()
+              ===
+              new Date(
+                start.getFullYear(),
+                start.getMonth(),
+                start.getDate(),
+                startHour
+              ).getTime()
+            ){
 
-            {
+              bar.innerHTML = `
 
-        
-if(
-  targetDate.getTime()
-  ===
-  new Date(
-    start.getFullYear(),
-    start.getMonth(),
-    start.getDate(),
-    startHour
-  ).getTime()
-){
+                ${product.serial}
+                <br>
+                ${proc.name}
 
-  bar.innerHTML = `
+              `;
 
-    ${product.serial}
-    <br>
-    ${proc.name}
+            }else{
 
-  `;
+              bar.innerHTML = `
 
-}else{
+                ${product.serial}
 
-  bar.innerHTML = `
-
-    ${product.serial}
-
-  `;
-
-}
+              `;
 
             }
 
@@ -888,6 +864,16 @@ document
   .addEventListener(
     "click",
     registerProduct
+  );
+
+
+/* QRボタン */
+
+document
+  .getElementById("scanBtn")
+  .addEventListener(
+    "click",
+    startQR
   );
 
 
