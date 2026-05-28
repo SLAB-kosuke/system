@@ -142,12 +142,6 @@ function startQR(){
 
       qr.stop();
 
-      /*
-        QR内容
-
-        A100,S001
-      */
-
       const data =
         qrText.split(",");
 
@@ -180,9 +174,6 @@ function startQR(){
   );
 
 }
-  
-}
-
 
 /* 工程生成 */
 
@@ -644,7 +635,7 @@ if(
 
             {
 
-            ```javascript id="hy4g2n"
+        
 if(
   targetDate.getTime()
   ===
