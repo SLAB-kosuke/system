@@ -1,3 +1,4 @@
+```javascript id="4c17mo"
 const weekNames = [
   "日",
   "月",
@@ -57,17 +58,16 @@ function registerProduct(){
   const drawing =
     document
       .getElementById("drawingInput")
-      .value;
+      .value
+      .trim();
 
   const serial =
     document
       .getElementById("serialInput")
-      .value;
+      .value
+      .trim();
 
-  if(
-    !drawing ||
-    !serial
-  ){
+  if(!drawing || !serial){
 
     alert("図番とシリアル入力");
 
@@ -88,8 +88,7 @@ function registerProduct(){
 
     drawing,
     serial,
-    processes,
-    status:"processing"
+    processes
 
   });
 
@@ -143,7 +142,9 @@ function createProcesses(
 
       start,
 
-      end
+      end,
+
+      status:""
 
     });
 
@@ -174,50 +175,35 @@ function renderAll(){
 function renderProducts(){
 
   const list =
-    document.getElementById("productList");
+    document.getElementById(
+      "productList"
+    );
 
   list.innerHTML = "";
 
   products.forEach(
     (product,productIndex)=>{
 
-    /* 状態色 */
-
-    let cardClass = "";
-
-    switch(product.status){
-
-      case "processing":
-        cardClass = "card-processing";
-        break;
-
-      case "stop":
-        cardClass = "card-stop";
-        break;
-
-      case "complete":
-        cardClass = "card-complete";
-        break;
-
-      case "hold":
-        cardClass = "card-hold";
-        break;
-
-      default:
-        cardClass = "";
-        break;
-
-    }
-
-    /* 工程名 */
-
     let processHTML = "";
 
-    product.processes.forEach(proc=>{
+    product.processes.forEach(
+      (proc,processIndex)=>{
 
       processHTML += `
 
-        <div class="process-name">
+        <div
+          class="
+            process-box
+            ${proc.status}
+          "
+
+          onclick="
+            openStatusButtons(
+              ${productIndex},
+              ${processIndex}
+            )
+          "
+        >
 
           ${proc.name}
 
@@ -231,13 +217,13 @@ function renderProducts(){
       document.createElement("div");
 
     card.className =
-      `product-card ${cardClass}`;
+      "product-card";
 
     card.innerHTML = `
 
       <div class="product-top">
 
-        <div class="product-info">
+        <div>
 
           <div class="drawing">
 
@@ -253,19 +239,24 @@ function renderProducts(){
 
         </div>
 
-        <div class="process-list">
+      </div>
 
-          ${processHTML}
+      <div class="process-row">
 
-        </div>
+        ${processHTML}
 
       </div>
 
-      <div class="status-buttons">
+      <div
+        class="status-buttons"
+        id="
+          status-${productIndex}
+        "
+      >
 
         <button
           onclick="
-            changeProductStatus(
+            changeProcessStatus(
               ${productIndex},
               'processing'
             )
@@ -278,7 +269,7 @@ function renderProducts(){
 
         <button
           onclick="
-            changeProductStatus(
+            changeProcessStatus(
               ${productIndex},
               'stop'
             )
@@ -291,20 +282,20 @@ function renderProducts(){
 
         <button
           onclick="
-            changeProductStatus(
+            changeProcessStatus(
               ${productIndex},
               'complete'
             )
           "
         >
 
-          終了
+          完了
 
         </button>
 
         <button
           onclick="
-            changeProductStatus(
+            changeProcessStatus(
               ${productIndex},
               'hold'
             )
@@ -326,15 +317,73 @@ function renderProducts(){
 }
 
 
+/* 選択中工程 */
+
+let selectedProductIndex = null;
+
+let selectedProcessIndex = null;
+
+
+/* 状態ボタン表示 */
+
+function openStatusButtons(
+  productIndex,
+  processIndex
+){
+
+  document
+    .querySelectorAll(
+      ".status-buttons"
+    )
+    .forEach(el=>{
+
+      el.style.display = "none";
+
+    });
+
+  selectedProductIndex =
+    productIndex;
+
+  selectedProcessIndex =
+    processIndex;
+
+  const target =
+    document.getElementById(
+      `status-${productIndex}`
+    );
+
+  target.style.display =
+    "flex";
+
+}
+
+
 /* 状態変更 */
 
-function changeProductStatus(
+function changeProcessStatus(
   productIndex,
   status
 ){
 
-  products[productIndex].status =
-    status;
+  if(
+    selectedProcessIndex === null
+  ){
+
+    return;
+
+  }
+
+  products
+    [productIndex]
+    .processes
+    [selectedProcessIndex]
+    .status = status;
+
+  document
+    .getElementById(
+      `status-${productIndex}`
+    )
+    .style.display = "none";
 
   renderAll();
 
@@ -349,7 +398,9 @@ function showPage(id){
     .querySelectorAll(".page")
     .forEach(page=>{
 
-      page.classList.remove("active");
+      page.classList.remove(
+        "active"
+      );
 
     });
 
@@ -699,3 +750,4 @@ document
 /* 初期表示 */
 
 renderAll();
+```
