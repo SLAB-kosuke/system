@@ -58,13 +58,18 @@ let selectedProcessIndex = null;
 
 /* QR */
 
-const qr =
-  new Html5Qrcode("reader");
-
+let qr = null;
 
 /* QR開始 */
 
 function startQR(){
+
+  if(!qr){
+
+    qr =
+      new Html5Qrcode("reader");
+
+  }
 
   qr.start(
 
@@ -80,11 +85,6 @@ function startQR(){
     qrText=>{
 
       qr.stop();
-
-      /*
-        QR例
-        A100,S001
-      */
 
       const data =
         qrText.split(",");
@@ -118,7 +118,6 @@ function startQR(){
   );
 
 }
-
 
 /* 製品登録 */
 
