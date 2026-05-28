@@ -587,12 +587,13 @@ function renderTimeline(){
             0
           );
 
-          if(
-            targetDate >= start
-            &&
-            targetDate <= end
-          ){
-
+         if(
+  proc.status === "processing" ||
+  proc.status === "stop" ||
+  proc.status === "complete" ||
+  proc.status === "hold"
+)
+          {
             const bar =
               document.createElement("div");
 
