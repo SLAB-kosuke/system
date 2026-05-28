@@ -497,16 +497,7 @@ function renderTimeline(){
           const end =
             new Date(proc.end);
 
-          const sameDay =
-
-            start.toDateString()
-            === date.toDateString();
-
-          if(!sameDay){
-
-            return;
-
-          }
+      
 
           const startHour =
             start.getHours();
@@ -514,11 +505,18 @@ function renderTimeline(){
           const endHour =
             end.getHours();
 
-          if(
-            h >= startHour
-            &&
-            h <= endHour
-          ){
+        const targetDate =
+  new Date(date);
+
+targetDate.setHours(h);
+
+if(
+  targetDate >= start
+  &&
+  targetDate <= end
+)
+
+          {
 
             const bar =
               document.createElement("div");
