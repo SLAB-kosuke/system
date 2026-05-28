@@ -118,7 +118,13 @@ function startQR(){
         .value =
           data[1];
 
-      registerProduct();
+     document
+  .getElementById("drawingInput")
+  .value = data[0];
+
+document
+  .getElementById("serialInput")
+  .value = data[1];
 
     },
 
