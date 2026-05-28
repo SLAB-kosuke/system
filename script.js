@@ -561,7 +561,18 @@ if(
               ${statusClass}
             `;
 
-            if(h === startHour){
+          if(
+  targetDate.getTime()
+  ===
+  new Date(
+    start.getFullYear(),
+    start.getMonth(),
+    start.getDate(),
+    startHour
+  ).getTime()
+)
+
+            {
 
               bar.innerHTML = `
 
