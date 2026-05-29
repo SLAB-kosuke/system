@@ -530,3 +530,122 @@ body{
   overflow:hidden;
 
 }
+padding:5px;
+
+  box-sizing:border-box;
+
+  overflow:hidden;
+
+}
+
+
+/* 予定ガント色 */
+
+.plan-bar{
+
+  background:#60a5fa;
+
+  color:white;
+
+}
+
+
+/* ガント */
+
+.gantt-header{
+
+  display:grid;
+
+  grid-template-columns:
+    120px repeat(24,80px);
+
+  overflow-x:auto;
+
+  font-size:12px;
+
+  font-weight:bold;
+
+}
+
+.gantt-header div{
+
+  border:1px solid #ddd;
+
+  padding:5px;
+
+  text-align:center;
+
+}
+
+.gantt-row{
+
+  display:flex;
+
+  margin-bottom:10px;
+
+}
+
+.gantt-label{
+
+  width:120px;
+
+  min-width:120px;
+
+  padding:10px;
+
+  font-weight:bold;
+
+  background:#f3f4f6;
+
+  border:1px solid #ddd;
+
+}
+
+.gantt-line{
+
+  position:relative;
+
+  width:1920px;
+
+  height:60px;
+
+  border:1px solid #ddd;
+
+  background:
+
+    repeating-linear-gradient(
+      to right,
+      #fff,
+      #fff 79px,
+      #e5e7eb 80px
+    );
+
+}
+
+.gantt-bar{
+
+  position:absolute;
+
+  top:10px;
+
+  height:40px;
+
+  border-radius:8px;
+
+  color:white;
+
+  font-size:12px;
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+  overflow:hidden;
+
+  white-space:nowrap;
+
+  font-weight:bold;
+
+}
