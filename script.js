@@ -2,6 +2,7 @@ const weekNames = [
   "日","月","火","水","木","金","土"
 ];
 
+
 /* 工程マスタ */
 
 const processMaster = {
@@ -10,7 +11,7 @@ const processMaster = {
 
     {
       name:"荒①",
-      hours:36
+      hours:6
     },
 
     {
@@ -52,6 +53,7 @@ let selectedProcessIndex = null;
 /* QR */
 
 let qr = null;
+
 
 /* QR開始 */
 
@@ -103,8 +105,6 @@ function startQR(){
         .value =
         data[1];
 
-      /* 自動登録 */
-
       registerProduct();
 
     },
@@ -116,6 +116,7 @@ function startQR(){
   );
 
 }
+
 
 /* 製品登録 */
 
@@ -137,6 +138,7 @@ function registerProduct(){
   if(!drawing || !serial){
 
     alert("図番とシリアル入力");
+
     return;
 
   }
@@ -144,6 +146,7 @@ function registerProduct(){
   if(!processMaster[drawing]){
 
     alert("工程マスタ未登録");
+
     return;
 
   }
@@ -189,11 +192,11 @@ function createProcesses(drawing){
     const start =
       new Date(current);
 
-   current =
-  new Date(
-    current.getTime()
-    + proc.hours * 60 * 60 * 1000
-  );
+    current =
+      new Date(
+        current.getTime()
+        + proc.hours * 60 * 60 * 1000
+      );
 
     const end =
       new Date(current);
@@ -201,11 +204,18 @@ function createProcesses(drawing){
     result.push({
 
       name:proc.name,
+
       hours:proc.hours,
+
       start,
+
       end,
+
       status:"",
-      actualStart:null
+
+      actualStart:null,
+
+      actualEnd:null
 
     });
 
@@ -221,8 +231,13 @@ function createProcesses(drawing){
 function renderAll(){
 
   renderProducts();
-  renderTimeline();
+
+  renderPlanTimeline();
+
+  renderActualTimeline();
+
   renderWeek();
+
   renderMonth();
 
 }
@@ -300,7 +315,9 @@ function renderProducts(){
         </div>
 
         <div class="process-row">
+
           ${processHTML}
+
         </div>
 
         <div
@@ -316,7 +333,7 @@ function renderProducts(){
               )
             "
           >
-            加工中
+            開始
           </button>
 
           <button
@@ -434,7 +451,7 @@ function changeProcessStatus(
 
   proc.status = status;
 
-  /* 開始時間記録 */
+  /* 開始 */
 
   if(
     status === "processing"
@@ -446,15 +463,32 @@ function changeProcessStatus(
       new Date();
 
   }
- if(status === ""){
+
+  /* 完了 */
+
+  if(
+    status === "complete"
+  ){
+
+    proc.actualEnd =
+      new Date();
+
+  }
+
+  /* クリア */
+
+  if(status === ""){
 
     proc.actualStart = null;
+
+    proc.actualEnd = null;
 
   }
 
   renderAll();
 
 }
+
 
 /* ページ切替 */
 
@@ -477,13 +511,13 @@ function showPage(id){
 
     target.classList.add(
       "active"
-      );
+    );
+
   }
 
 }
 
 
-/* ガントチャート */
 /* 予定ガント */
 
 function renderPlanTimeline(){
@@ -512,10 +546,15 @@ function renderPlanTimeline(){
       div.innerHTML = `
 
         【予定】
+
         ${product.serial}
+
         -
+
         ${proc.name}
+
         :
+
         ${proc.hours}h
 
       `;
@@ -527,6 +566,8 @@ function renderPlanTimeline(){
   });
 
 }
+
+
 /* 実績ガント */
 
 function renderActualTimeline(){
@@ -575,8 +616,11 @@ function renderActualTimeline(){
       div.innerHTML = `
 
         【実績】
+
         ${product.serial}
+
         -
+
         ${proc.name}
 
         <br>
@@ -592,6 +636,7 @@ function renderActualTimeline(){
   });
 
 }
+
 
 /* 週間 */
 
