@@ -595,15 +595,18 @@ function renderPlanTimeline(){
 
       /* 横位置 */
 
-      const left =
-        (
-          startHour * 80
-        )
-        +
-        (
-          startMinute / 60
-          * 80
-        );
+     const left =
+  Math.min(
+    (
+      startHour * 80
+    )
+    +
+    (
+      startMinute / 60
+      * 80
+    ),
+    1920
+  );
 
       /* 予定時間 */
 
@@ -618,7 +621,8 @@ function renderPlanTimeline(){
       /* 横幅 */
 
       const width =
-        diffHours * 80;
+        Math.min(diffHours,24)
+        * 80;
 
       const bar =
         document.createElement("div");
@@ -742,14 +746,17 @@ function renderActualTimeline(){
       /* 横位置 */
 
       const left =
-        (
-          startHour * 80
-        )
-        +
-        (
-          startMinute / 60
-          * 80
-        );
+  Math.min(
+    (
+      startHour * 80
+    )
+    +
+    (
+      startMinute / 60
+      * 80
+    ),
+    1920
+  );
 
       /* 経過時間 */
 
@@ -762,7 +769,8 @@ function renderActualTimeline(){
       /* 横幅 */
 
       const width =
-        diffHours * 80;
+        Math.min(diffHours,24)
+        * 80;
 
       const bar =
         document.createElement("div");
