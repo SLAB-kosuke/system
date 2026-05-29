@@ -1,146 +1,307 @@
 <!DOCTYPE html>
 <html lang="ja">
-
 <head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>工程ガントチャート</title>
 
-  <meta charset="UTF-8">
+<style>
+/* =========================
+   ベース
+========================= */
+body {
+  margin: 0;
+  font-family: Arial, "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+  background: #f4f6f8;
+}
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
+.container {
+  padding: 16px;
+}
 
-  <title>
-    生産管理システム
-  </title>
+/* =========================
+   入力エリア
+========================= */
+.form {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
 
-  <link
-    rel="stylesheet"
-    href="style.css"
-  >
+input, select, button {
+  padding: 6px;
+  font-size: 13px;
+}
+
+/* =========================
+   ガント全体
+========================= */
+.gantt-container {
+  background: #fff;
+  padding: 10px;
+  border-radius: 8px;
+  overflow-x: auto;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.gantt-row {
+  position: relative;
+  height: 42px;
+  border-bottom: 1px solid #eee;
+}
+
+.gantt-label {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 120px;
+  line-height: 42px;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.gantt-track {
+  margin-left: 130px;
+  position: relative;
+  height: 100%;
+  background: #fafafa;
+}
+
+/* =========================
+   バー
+========================= */
+.gantt-bar {
+  position: absolute;
+  height: 22px;
+  top: 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  color: #fff;
+  padding: 2px 6px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+/* 状態 */
+.yotei { background:#3498db; }
+.tyuushi { background:#f39c12; }
+.kanryo { background:#2ecc71; }
+.horyu { background:#95a5a6; }
+
+/* =========================
+   予定終了ライン
+========================= */
+.planned-end {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: red;
+  z-index: 5;
+}
+
+.planned-end::after {
+  content: "予定";
+  position: absolute;
+  top: -16px;
+  left: -10px;
+  font-size: 10px;
+  color: red;
+}
+
+/* =========================
+   テーブル
+========================= */
+table {
+  width: 100%;
+  margin-top: 16px;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+th, td {
+  padding: 8px;
+  border-bottom: 1px solid #eee;
+  font-size: 13px;
+}
+
+th {
+  background: #f0f0f0;
+  text-align: left;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  border-radius: 4px;
+}
+
+.btn-del { background:#e74c3c; color:#fff; }
+</style>
 
 </head>
 
 <body>
+<div class="container">
 
-  <!-- ヘッダー -->
+  <h3>工程ガント</h3>
 
-  <header class="header">
+  <!-- 入力 -->
+  <div class="form">
+    <input id="title" placeholder="工程名">
+    <input id="start" type="datetime-local">
+    <input id="end" type="datetime-local">
 
-    生産管理システム
+    <select id="status">
+      <option value="yotei">予定</option>
+      <option value="tyuushi">中断</option>
+      <option value="kanryo">完了</option>
+      <option value="horyu">保留</option>
+    </select>
 
-  </header>
+    <button onclick="addTask()">追加</button>
+  </div>
 
+  <!-- ガント -->
+  <div id="gantt" class="gantt-container"></div>
 
-  <!-- 登録 -->
+  <!-- 一覧 -->
+  <table>
+    <thead>
+      <tr>
+        <th>工程</th>
+        <th>開始</th>
+        <th>終了</th>
+        <th>状態</th>
+        <th>削除</th>
+      </tr>
+    </thead>
+    <tbody id="list"></tbody>
+  </table>
 
-  <section class="top-section">
+</div>
 
-    <div id="reader"></div>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  getDocs,
+  deleteDoc,
+  doc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    <input
-      type="text"
-      id="drawingInput"
-      placeholder="図番"
-    >
+/* ===== Firebase設定（ここだけ自分のに差し替え） ===== */
+const firebaseConfig = {
+  apiKey: "XXXX",
+  authDomain: "XXXX",
+  projectId: "XXXX",
+};
 
-    <input
-      type="text"
-      id="serialInput"
-      placeholder="シリアル"
-    >
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const col = collection(db, "tasks");
 
-    <button id="registerBtn">
+/* ===== 基準（1時間=20px） ===== */
+const PX_PER_HOUR = 20;
 
-      製品登録
+/* =========================
+   追加
+========================= */
+window.addTask = async function () {
+  const title = document.getElementById("title").value;
+  const start = document.getElementById("start").value;
+  const end = document.getElementById("end").value;
+  const status = document.getElementById("status").value;
 
-    </button>
+  if (!title || !start || !end) return;
 
-    <button id="scanBtn">
+  await addDoc(col, { title, start, end, status });
 
-      QR読取
+  load();
+};
 
-    </button>
+/* =========================
+   削除
+========================= */
+window.del = async function (id) {
+  await deleteDoc(doc(db, "tasks", id));
+  load();
+};
 
-  </section>
+/* =========================
+   読み込み
+========================= */
+async function load() {
+  const snap = await getDocs(col);
 
+  const data = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-  <!-- 製品一覧 -->
+  render(data);
+}
 
-  <section class="list-section">
+/* =========================
+   描画
+========================= */
+function render(data) {
+  const gantt = document.getElementById("gantt");
+  const list = document.getElementById("list");
 
-    <h2>
+  gantt.innerHTML = "";
+  list.innerHTML = "";
 
-      製品一覧
+  if (data.length === 0) return;
 
-    </h2>
+  const base = new Date(Math.min(...data.map(d => new Date(d.start))));
 
-    <div id="productList"></div>
+  data.forEach(task => {
+    const start = new Date(task.start);
+    const end = new Date(task.end);
 
-  </section>
+    const left = (start - base) / (1000 * 60 * 60) * PX_PER_HOUR;
+    const width = (end - start) / (1000 * 60 * 60) * PX_PER_HOUR;
 
+    /* ===== 行 ===== */
+    const row = document.createElement("div");
+    row.className = "gantt-row";
 
-  <!-- メニュー -->
+    row.innerHTML = `
+      <div class="gantt-label">${task.title}</div>
+      <div class="gantt-track">
 
-  <section class="menu-section">
+        <div class="gantt-bar ${task.status}"
+          style="left:${left}px;width:${width}px">
+          ${task.title}
+        </div>
 
-    <button data-page="planPage">
+        <div class="planned-end"
+          style="left:${left + width}px"></div>
 
-      予定ガント
+      </div>
+    `;
 
-    </button>
+    gantt.appendChild(row);
 
-    <button data-page="actualPage">
+    /* ===== 一覧 ===== */
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${task.title}</td>
+      <td>${task.start}</td>
+      <td>${task.end}</td>
+      <td>${task.status}</td>
+      <td><button class="btn-del" onclick="del('${task.id}')">削除</button></td>
+    `;
+    list.appendChild(tr);
+  });
+}
 
-      加工進捗
-
-    </button>
-
-  </section>
-
-
-  <!-- 予定ガント -->
-
-  <section
-    id="planPage"
-    class="page active"
-  >
-
-    <h2>
-
-      予定ガント
-
-    </h2>
-
-    <div id="planTimeline"></div>
-
-  </section>
-
-
-  <!-- 加工進捗 -->
-
-  <section
-    id="actualPage"
-    class="page"
-  >
-
-    <h2>
-
-      加工進捗
-
-    </h2>
-
-    <div id="actualTimeline"></div>
-
-  </section>
-
-
-  <!-- QRライブラリ -->
-
-  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-
-  <script src="script.js"></script>
+/* 初期ロード */
+load();
+</script>
 
 </body>
-
 </html>
