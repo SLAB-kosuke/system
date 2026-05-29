@@ -429,7 +429,6 @@ function openStatusButtons(
 
 }
 
-
 /* 状態変更 */
 
 function changeProcessStatus(
@@ -512,11 +511,8 @@ function showPage(id){
     target.classList.add(
       "active"
     );
-
   }
-
 }
-
 
 /* 予定ガント */
 
@@ -566,7 +562,6 @@ function renderPlanTimeline(){
   });
 
 }
-
 
 /* 実績ガント */
 
@@ -642,8 +637,12 @@ function renderActualTimeline(){
       const start =
         new Date(proc.actualStart);
 
-      const now =
-        new Date();
+      /* 終了時間 */
+
+      const endTime =
+        proc.actualEnd
+        ? new Date(proc.actualEnd)
+        : new Date();
 
       const startHour =
         start.getHours();
@@ -666,9 +665,7 @@ function renderActualTimeline(){
       /* 経過時間 */
 
       const diffHours =
-        (
-          now - start
-        )
+        (endTime - start)
         / 1000
         / 60
         / 60;
