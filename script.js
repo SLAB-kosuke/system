@@ -53,7 +53,6 @@ let selectedProcessIndex = null;
 
 let qr = null;
 
-
 /* QR開始 */
 
 function startQR(){
@@ -75,7 +74,7 @@ function startQR(){
       qrbox:250
     },
 
-    qrText=>{
+    function(qrText){
 
       qr.stop().then(()=>{
 
@@ -89,6 +88,7 @@ function startQR(){
       if(data.length < 2){
 
         alert("QR形式エラー");
+
         return;
 
       }
@@ -103,16 +103,19 @@ function startQR(){
         .value =
         data[1];
 
+      /* 自動登録 */
+
+      registerProduct();
+
     },
 
-    error=>{
+    function(error){
 
     }
 
   );
 
 }
-
 
 /* 製品登録 */
 
