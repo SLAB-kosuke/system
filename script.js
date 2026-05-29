@@ -189,10 +189,11 @@ function createProcesses(drawing){
     const start =
       new Date(current);
 
-    current.setHours(
-      current.getHours()
-      + proc.hours
-    );
+   current =
+  new Date(
+    current.getTime()
+    + proc.hours * 60 * 60 * 1000
+  );
 
     const end =
       new Date(current);
