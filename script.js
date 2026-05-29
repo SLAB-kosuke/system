@@ -11,7 +11,7 @@ const processMaster = {
 
     {
       name:"荒①",
-      hours:6
+      hours:36
     },
 
     {
