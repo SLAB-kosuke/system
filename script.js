@@ -204,17 +204,11 @@ function createProcesses(drawing){
     result.push({
 
       name:proc.name,
-
       hours:proc.hours,
-
       start,
-
       end,
-
       status:"",
-
       actualStart:null,
-
       actualEnd:null
 
     });
@@ -303,11 +297,15 @@ function renderProducts(){
           <div>
 
             <div class="drawing">
+
               ${product.drawing}
+
             </div>
 
             <div class="serial">
+
               ${product.serial}
+
             </div>
 
           </div>
@@ -391,7 +389,7 @@ function renderProducts(){
 }
 
 
-/* 状態ボタン表示 */
+/* 状態ボタン */
 
 function openStatusButtons(
   productIndex,
@@ -428,6 +426,7 @@ function openStatusButtons(
   }
 
 }
+
 
 /* 状態変更 */
 
@@ -511,8 +510,11 @@ function showPage(id){
     target.classList.add(
       "active"
     );
+
   }
+
 }
+
 
 /* 予定ガント */
 
@@ -529,31 +531,7 @@ function renderPlanTimeline(){
 
   container.innerHTML = "";
 
-  /* ヘッダー */
-
-  const header =
-    document.createElement("div");
-
-  header.className =
-    "gantt-header";
-
-  let headerHTML =
-    "<div>製品</div>";
-
-  for(let h=0; h<24; h++){
-
-    headerHTML += `
-      <div>${h}:00</div>
-    `;
-
-  }
-
-  header.innerHTML =
-    headerHTML;
-
-  container.appendChild(header);
-
-  /* 行 */
+  createGanttHeader(container);
 
   products.forEach(product=>{
 
@@ -569,9 +547,8 @@ function renderPlanTimeline(){
     label.className =
       "gantt-label";
 
-    label.innerHTML = `
-      ${product.serial}
-    `;
+    label.innerHTML =
+      product.serial;
 
     const line =
       document.createElement("div");
@@ -587,28 +564,14 @@ function renderPlanTimeline(){
       const end =
         new Date(proc.end);
 
-      const startHour =
-        start.getHours();
-
-      const startMinute =
-        start.getMinutes();
-
-      /* 横位置 */
-
-     const left =
-  Math.min(
-    (
-      startHour * 80
-    )
-    +
-    (
-      startMinute / 60
-      * 80
-    ),
-    1920
-  );
-
-      /* 予定時間 */
+      const left =
+        (
+          start.getHours() * 80
+        )
+        +
+        (
+          start.getMinutes() / 60 * 80
+        );
 
       const diffHours =
         (
@@ -618,17 +581,14 @@ function renderPlanTimeline(){
         / 60
         / 60;
 
-      /* 横幅 */
-
       const width =
-        Math.min(diffHours,24)
-        * 80;
+        diffHours * 80;
 
       const bar =
         document.createElement("div");
 
       bar.className =
-        "gantt-bar plan-bar";
+        "gantt-bar processing";
 
       bar.style.left =
         `${left}px`;
@@ -636,11 +596,8 @@ function renderPlanTimeline(){
       bar.style.width =
         `${width}px`;
 
-      bar.innerHTML = `
-
-        ${proc.name}
-
-      `;
+      bar.innerHTML =
+        proc.name;
 
       line.appendChild(bar);
 
@@ -655,6 +612,7 @@ function renderPlanTimeline(){
   });
 
 }
+
 
 /* 実績ガント */
 
@@ -671,31 +629,7 @@ function renderActualTimeline(){
 
   container.innerHTML = "";
 
-  /* ヘッダー */
-
-  const header =
-    document.createElement("div");
-
-  header.className =
-    "gantt-header";
-
-  let headerHTML =
-    "<div>製品</div>";
-
-  for(let h=0; h<24; h++){
-
-    headerHTML += `
-      <div>${h}:00</div>
-    `;
-
-  }
-
-  header.innerHTML =
-    headerHTML;
-
-  container.appendChild(header);
-
-  /* 行 */
+  createGanttHeader(container);
 
   products.forEach(product=>{
 
@@ -711,9 +645,8 @@ function renderActualTimeline(){
     label.className =
       "gantt-label";
 
-    label.innerHTML = `
-      ${product.serial}
-    `;
+    label.innerHTML =
+      product.serial;
 
     const line =
       document.createElement("div");
@@ -730,47 +663,30 @@ function renderActualTimeline(){
       const start =
         new Date(proc.actualStart);
 
-      /* 終了時間 */
-
       const endTime =
         proc.actualEnd
         ? new Date(proc.actualEnd)
         : new Date();
 
-      const startHour =
-        start.getHours();
-
-      const startMinute =
-        start.getMinutes();
-
-      /* 横位置 */
-
       const left =
-  Math.min(
-    (
-      startHour * 80
-    )
-    +
-    (
-      startMinute / 60
-      * 80
-    ),
-    1920
-  );
-
-      /* 経過時間 */
+        (
+          start.getHours() * 80
+        )
+        +
+        (
+          start.getMinutes() / 60 * 80
+        );
 
       const diffHours =
-        (endTime - start)
+        (
+          endTime - start
+        )
         / 1000
         / 60
         / 60;
 
-      /* 横幅 */
-
       const width =
-        Math.min(diffHours,24)
-        * 80;
+        diffHours * 80;
 
       const bar =
         document.createElement("div");
@@ -784,11 +700,8 @@ function renderActualTimeline(){
       bar.style.width =
         `${width}px`;
 
-      bar.innerHTML = `
-
-        ${proc.name}
-
-      `;
+      bar.innerHTML =
+        proc.name;
 
       line.appendChild(bar);
 
@@ -804,6 +717,36 @@ function renderActualTimeline(){
 
 }
 
+
+/* ガントヘッダー */
+
+function createGanttHeader(container){
+
+  const header =
+    document.createElement("div");
+
+  header.className =
+    "gantt-header";
+
+  let html =
+    "<div>製品</div>";
+
+  for(let h=0; h<24; h++){
+
+    html += `
+      <div>${h}:00</div>
+    `;
+
+  }
+
+  header.innerHTML =
+    html;
+
+  container.appendChild(header);
+
+}
+
+
 /* 週間 */
 
 function renderWeek(){}
@@ -814,7 +757,7 @@ function renderWeek(){}
 function renderMonth(){}
 
 
-/* 登録ボタン */
+/* ボタン */
 
 document
   .getElementById("registerBtn")
@@ -823,18 +766,12 @@ document
     registerProduct
   );
 
-
-/* QRボタン */
-
 document
   .getElementById("scanBtn")
   .addEventListener(
     "click",
     startQR
   );
-
-
-/* ページ切替 */
 
 document
   .querySelectorAll("[data-page]")
@@ -857,3 +794,12 @@ document
 /* 初期表示 */
 
 renderAll();
+
+
+/* リアルタイム更新 */
+
+setInterval(()=>{
+
+  renderActualTimeline();
+
+},1000);
