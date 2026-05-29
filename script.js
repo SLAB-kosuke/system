@@ -517,6 +517,9 @@ function showPage(id){
 
 
 /* 予定ガント */
+/* =========================
+   予定ガント
+========================= */
 
 function renderPlanTimeline(){
 
@@ -556,21 +559,48 @@ function renderPlanTimeline(){
     line.className =
       "gantt-line";
 
+    let baseTime = null;
+
     product.processes.forEach(proc=>{
 
+      if(!proc.actualStart){
+        return;
+      }
+
+      /* 最初の開始時間 */
+
+      if(!baseTime){
+
+        baseTime =
+          new Date(proc.actualStart);
+
+      }
+
       const start =
-        new Date(proc.start);
+        new Date(baseTime);
 
       const end =
-        new Date(proc.end);
+        new Date(
+          start.getTime()
+          + proc.hours
+          * 60
+          * 60
+          * 1000
+        );
+
+      const startHour =
+        start.getHours();
+
+      const startMinute =
+        start.getMinutes();
 
       const left =
         (
-          start.getHours() * 80
+          startHour * 40
         )
         +
         (
-          start.getMinutes() / 60 * 80
+          startMinute / 60 * 40
         );
 
       const diffHours =
@@ -582,7 +612,7 @@ function renderPlanTimeline(){
         / 60;
 
       const width =
-        diffHours * 80;
+        diffHours * 40;
 
       const bar =
         document.createElement("div");
@@ -596,10 +626,19 @@ function renderPlanTimeline(){
       bar.style.width =
         `${width}px`;
 
-      bar.innerHTML =
-        proc.name;
+      bar.innerHTML = `
+
+        ${product.serial}
+        -
+        ${proc.name}
+
+      `;
 
       line.appendChild(bar);
+
+      /* 次工程開始 */
+
+      baseTime = end;
 
     });
 
@@ -614,7 +653,9 @@ function renderPlanTimeline(){
 }
 
 
-/* 実績ガント */
+/* =========================
+   加工進捗
+========================= */
 
 function renderActualTimeline(){
 
@@ -668,13 +709,19 @@ function renderActualTimeline(){
         ? new Date(proc.actualEnd)
         : new Date();
 
+      const startHour =
+        start.getHours();
+
+      const startMinute =
+        start.getMinutes();
+
       const left =
         (
-          start.getHours() * 80
+          startHour * 40
         )
         +
         (
-          start.getMinutes() / 60 * 80
+          startMinute / 60 * 40
         );
 
       const diffHours =
@@ -686,7 +733,7 @@ function renderActualTimeline(){
         / 60;
 
       const width =
-        diffHours * 80;
+        diffHours * 40;
 
       const bar =
         document.createElement("div");
@@ -700,8 +747,13 @@ function renderActualTimeline(){
       bar.style.width =
         `${width}px`;
 
-      bar.innerHTML =
-        proc.name;
+      bar.innerHTML = `
+
+        ${product.serial}
+        -
+        ${proc.name}
+
+      `;
 
       line.appendChild(bar);
 
@@ -718,7 +770,9 @@ function renderActualTimeline(){
 }
 
 
-/* ガントヘッダー */
+/* =========================
+   ガントヘッダー
+========================= */
 
 function createGanttHeader(container){
 
@@ -734,7 +788,7 @@ function createGanttHeader(container){
   for(let h=0; h<24; h++){
 
     html += `
-      <div>${h}:00</div>
+      <div>${h}</div>
     `;
 
   }
@@ -745,8 +799,6 @@ function createGanttHeader(container){
   container.appendChild(header);
 
 }
-
-
 /* 週間 */
 
 function renderWeek(){}
