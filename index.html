@@ -73,8 +73,12 @@
 
 <section class="menu-section">
 
-  <button data-page="timelinePage">
-    タイムライン
+  <button data-page="planPage">
+    予定ガント
+  </button>
+
+  <button data-page="actualPage">
+    実績ガント
   </button>
 
   <button data-page="weekPage">
@@ -89,10 +93,36 @@
 
 <!-- タイムライン -->
 
+<!-- 予定ガント -->
+
 <section
-  id="timelinePage"
+  id="planPage"
   class="page active"
 >
+
+  <h2>
+    予定ガント
+  </h2>
+
+  <div id="planTimeline"></div>
+
+</section>
+
+
+<!-- 実績ガント -->
+
+<section
+  id="actualPage"
+  class="page"
+>
+
+  <h2>
+    実績ガント
+  </h2>
+
+  <div id="actualTimeline"></div>
+
+</section>
 
   <h2>
     3日タイムライン
