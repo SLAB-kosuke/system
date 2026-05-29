@@ -529,35 +529,124 @@ function renderPlanTimeline(){
 
   container.innerHTML = "";
 
+  /* ヘッダー */
+
+  const header =
+    document.createElement("div");
+
+  header.className =
+    "gantt-header";
+
+  let headerHTML =
+    "<div>製品</div>";
+
+  for(let h=0; h<24; h++){
+
+    headerHTML += `
+      <div>${h}:00</div>
+    `;
+
+  }
+
+  header.innerHTML =
+    headerHTML;
+
+  container.appendChild(header);
+
+  /* 行 */
+
   products.forEach(product=>{
+
+    const row =
+      document.createElement("div");
+
+    row.className =
+      "gantt-row";
+
+    const label =
+      document.createElement("div");
+
+    label.className =
+      "gantt-label";
+
+    label.innerHTML = `
+      ${product.serial}
+    `;
+
+    const line =
+      document.createElement("div");
+
+    line.className =
+      "gantt-line";
 
     product.processes.forEach(proc=>{
 
-      const div =
+      const start =
+        new Date(proc.start);
+
+      const end =
+        new Date(proc.end);
+
+      const startHour =
+        start.getHours();
+
+      const startMinute =
+        start.getMinutes();
+
+      /* 横位置 */
+
+      const left =
+        (
+          startHour * 80
+        )
+        +
+        (
+          startMinute / 60
+          * 80
+        );
+
+      /* 予定時間 */
+
+      const diffHours =
+        (
+          end - start
+        )
+        / 1000
+        / 60
+        / 60;
+
+      /* 横幅 */
+
+      const width =
+        diffHours * 80;
+
+      const bar =
         document.createElement("div");
 
-      div.className =
-        "process-bar";
+      bar.className =
+        "gantt-bar plan-bar";
 
-      div.innerHTML = `
+      bar.style.left =
+        `${left}px`;
 
-        【予定】
+      bar.style.width =
+        `${width}px`;
 
-        ${product.serial}
-
-        -
+      bar.innerHTML = `
 
         ${proc.name}
 
-        :
-
-        ${proc.hours}h
-
       `;
 
-      container.appendChild(div);
+      line.appendChild(bar);
 
     });
+
+    row.appendChild(label);
+
+    row.appendChild(line);
+
+    container.appendChild(row);
 
   });
 
