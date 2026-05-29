@@ -1,5 +1,5 @@
 /* =========================
-   全体レイアウト
+   ベース
 ========================= */
 body {
   margin: 0;
@@ -13,46 +13,73 @@ body {
 }
 
 /* =========================
-   ヘッダー
+   入力エリア
 ========================= */
-header {
-  font-size: 18px;
-  font-weight: bold;
-  padding: 10px 0;
+.form {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+input, select, button {
+  padding: 6px;
+  font-size: 13px;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  border-radius: 4px;
+  background: #ddd;
+}
+
+button:hover {
+  opacity: 0.85;
 }
 
 /* =========================
-   ガントチャート領域
+   モード切替
+========================= */
+.mode {
+  margin: 10px 0;
+}
+
+.mode button {
+  background: #444;
+  color: #fff;
+  margin-right: 5px;
+}
+
+/* =========================
+   ガント全体
 ========================= */
 .gantt-container {
-  position: relative;
-  overflow-x: auto;
   background: #fff;
+  padding: 10px;
   border-radius: 8px;
-  padding: 12px;
+  overflow-x: auto;
   box-shadow: 0 2px 6px rgba(0,0,0,0.08);
 }
 
-/* 1行（工程行） */
+/* 1行 */
 .gantt-row {
   position: relative;
   height: 42px;
-  margin-bottom: 8px;
   border-bottom: 1px solid #eee;
 }
 
-/* ラベル（工程名など左側） */
+/* 左ラベル */
 .gantt-label {
   position: absolute;
   left: 0;
-  top: 0;
   width: 120px;
-  font-size: 13px;
   line-height: 42px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: bold;
 }
 
-/* バー領域（右側タイムライン） */
+/* タイムライン領域 */
 .gantt-track {
   margin-left: 130px;
   position: relative;
@@ -61,89 +88,54 @@ header {
 }
 
 /* =========================
-   タスクバー
+   バー
 ========================= */
 .gantt-bar {
   position: absolute;
-  height: 22px;
-  top: 10px;
-  border-radius: 6px;
+  height: 20px;
+  top: 11px;
+  border-radius: 5px;
   font-size: 11px;
   color: #fff;
   padding: 2px 6px;
-  overflow: hidden;
   white-space: nowrap;
+  overflow: hidden;
 }
 
 /* 状態色 */
-.status-yotei {
-  background: #3498db; /* 予定 */
-}
-
-.status-tyuushi {
-  background: #f39c12; /* 中断 */
-}
-
-.status-kanryo {
-  background: #2ecc71; /* 完了 */
-}
-
-.status-hozen {
-  background: #95a5a6; /* 保留 */
-}
+.yotei { background: #3498db; }
+.tyuushi { background: #f39c12; }
+.kanryo { background: #2ecc71; }
+.horyu { background: #95a5a6; }
 
 /* =========================
-   予定終了マーカー（縦線）
+   予定終了ライン
 ========================= */
-.planned-end-line {
+.end-line {
   position: absolute;
+  width: 2px;
   top: 0;
   bottom: 0;
-  width: 2px;
-  background: #e74c3c;
-  opacity: 0.9;
+  background: red;
   z-index: 5;
 }
 
-/* ラベル付き（任意） */
-.planned-end-line::after {
-  content: "予定";
-  position: absolute;
-  top: -18px;
-  left: -18px;
-  font-size: 10px;
-  color: #e74c3c;
-}
-
 /* =========================
-   今日ライン（任意）
-========================= */
-.today-line {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 2px;
-  background: #333;
-  opacity: 0.6;
-  z-index: 4;
-}
-
-/* =========================
-   一覧テーブル
+   テーブル
 ========================= */
 table {
   width: 100%;
-  border-collapse: collapse;
+  margin-top: 15px;
   background: #fff;
-  margin-top: 16px;
+  border-collapse: collapse;
   border-radius: 8px;
   overflow: hidden;
 }
 
 th, td {
-  padding: 10px;
+  padding: 8px;
   border-bottom: 1px solid #eee;
-  font-size: 13px;
+  font-size: 12px;
 }
 
 th {
@@ -151,37 +143,11 @@ th {
   text-align: left;
 }
 
-/* =========================
-   ボタン
-========================= */
+/* 削除ボタン */
 button {
-  padding: 6px 10px;
-  border: none;
-  border-radius: 5px;
-  font-size: 12px;
   cursor: pointer;
 }
 
-button.edit {
-  background: #3498db;
-  color: #fff;
-}
-
-button.delete {
-  background: #e74c3c;
-  color: #fff;
-}
-
 button:hover {
-  opacity: 0.85;
-}
-
-/* =========================
-   入力フォーム
-========================= */
-input, select {
-  padding: 6px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  font-size: 13px;
+  opacity: 0.8;
 }
