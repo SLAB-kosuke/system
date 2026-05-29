@@ -451,3 +451,82 @@ body{
   }
 
 }
+.gantt-container{
+
+  overflow-x:auto;
+  background:white;
+  padding:10px;
+
+}
+
+.gantt-header{
+
+  display:grid;
+  grid-template-columns:120px repeat(24,80px);
+
+}
+
+.gantt-header div{
+
+  border:1px solid #ccc;
+  text-align:center;
+  padding:5px;
+  font-weight:bold;
+  background:#dbeafe;
+
+}
+
+.gantt-row{
+
+  position:relative;
+
+  display:grid;
+
+  grid-template-columns:120px 1fr;
+
+  min-height:60px;
+
+  border-bottom:1px solid #ddd;
+
+}
+
+.gantt-label{
+
+  padding:10px;
+  font-weight:bold;
+  border-right:1px solid #ccc;
+  background:#eff6ff;
+
+}
+
+.gantt-line{
+
+  position:relative;
+
+  min-width:1920px;
+
+}
+
+.gantt-bar{
+
+  position:absolute;
+
+  height:40px;
+
+  top:10px;
+
+  border-radius:8px;
+
+  color:white;
+
+  font-size:12px;
+
+  font-weight:bold;
+
+  padding:5px;
+
+  box-sizing:border-box;
+
+  overflow:hidden;
+
+}
