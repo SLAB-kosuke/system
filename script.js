@@ -12,9 +12,12 @@ import {
    Firebase設定（ここだけ自分のに変更）
 ========================= */
 const firebaseConfig = {
-  apiKey: "XXXX",
-  authDomain: "XXXX",
-  projectId: "XXXX"
+   apiKey: "AIzaSyCEqhjoJuNOfSY6SDuXNCfXSScHcYpkvTs",
+  authDomain: "system-bc7f1.firebaseapp.com",
+  projectId: "system-bc7f1",
+  storageBucket: "system-bc7f1.firebasestorage.app",
+  messagingSenderId: "463071825210",
+  appId: "1:463071825210:web:0ffb147ec37746a51d5403"
 };
 
 const app = initializeApp(firebaseConfig);
