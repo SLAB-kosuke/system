@@ -499,11 +499,26 @@ body{
 
 }
 
-.gantt-line{
+gantt-line{
 
   position:relative;
 
   min-width:1920px;
+
+  height:60px;
+
+  border:1px solid #ddd;
+
+  overflow:hidden;
+
+  background:
+
+    repeating-linear-gradient(
+      to right,
+      #fff,
+      #fff 79px,
+      #e5e7eb 80px
+    );
 
 }
 
@@ -580,6 +595,8 @@ padding:5px;
 .gantt-row{
 
   display:flex;
+
+  overflow-x:auto;
 
   margin-bottom:10px;
 
