@@ -8,11 +8,8 @@ import {
   doc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-/* =========================
-   Firebase設定（ここだけ自分のに変更）
-========================= */
 const firebaseConfig = {
-   apiKey: "AIzaSyCEqhjoJuNOfSY6SDuXNCfXSScHcYpkvTs",
+  apiKey: "AIzaSyCEqhjoJuNOfSY6SDuXNCfXSScHcYpkvTs",
   authDomain: "system-bc7f1.firebaseapp.com",
   projectId: "system-bc7f1",
   storageBucket: "system-bc7f1.firebasestorage.app",
@@ -24,56 +21,39 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const col = collection(db, "tasks");
 
-/* =========================
-   表示スケール
-========================= */
-const PX_PER_HOUR = 20;
+const PX = 20;
 
-/* =========================
-   追加
-========================= */
+window.mode = "all";
+
+/* 追加 */
 window.addTask = async function () {
-  const title = document.getElementById("title").value;
-  const start = document.getElementById("start").value;
-  const end = document.getElementById("end").value;
-  const status = document.getElementById("status").value;
+  const title = titleEl().value;
+  const start = startEl().value;
+  const end = endEl().value;
+  const status = statusEl().value;
 
   if (!title || !start || !end) return;
 
   await addDoc(col, { title, start, end, status });
 
-  document.getElementById("title").value = "";
-  document.getElementById("start").value = "";
-  document.getElementById("end").value = "";
-
+  clear();
   load();
 };
 
-/* =========================
-   削除
-========================= */
+/* 削除 */
 window.del = async function (id) {
   await deleteDoc(doc(db, "tasks", id));
   load();
 };
 
-/* =========================
-   読み込み
-========================= */
+/* 読み込み */
 async function load() {
   const snap = await getDocs(col);
-
-  const data = snap.docs.map(d => ({
-    id: d.id,
-    ...d.data()
-  }));
-
+  const data = snap.docs.map(d => ({ id: d.id, ...d.data() }));
   render(data);
 }
 
-/* =========================
-   描画
-========================= */
+/* 描画 */
 function render(data) {
   const gantt = document.getElementById("gantt");
   const list = document.getElementById("list");
@@ -81,33 +61,29 @@ function render(data) {
   gantt.innerHTML = "";
   list.innerHTML = "";
 
-  if (data.length === 0) return;
+  if (!data.length) return;
 
   const base = new Date(Math.min(...data.map(d => new Date(d.start))));
 
-  data.forEach(task => {
-    const start = new Date(task.start);
-    const end = new Date(task.end);
+  data.forEach(t => {
+    const s = new Date(t.start);
+    const e = new Date(t.end);
 
-    const left = (start - base) / (1000 * 60 * 60) * PX_PER_HOUR;
-    const width = (end - start) / (1000 * 60 * 60) * PX_PER_HOUR;
+    const left = (s - base) / 3600000 * PX;
+    const width = (e - s) / 3600000 * PX;
 
     const row = document.createElement("div");
     row.className = "gantt-row";
 
     row.innerHTML = `
-      <div class="gantt-label">${task.title}</div>
-
+      <div class="gantt-label">${t.title}</div>
       <div class="gantt-track">
-
-        <div class="gantt-bar ${task.status}"
+        <div class="gantt-bar ${t.status}"
           style="left:${left}px;width:${width}px">
-          ${task.title}
+          ${t.title}
         </div>
-
-        <div class="planned-end"
+        <div class="end-line"
           style="left:${left + width}px"></div>
-
       </div>
     `;
 
@@ -115,18 +91,28 @@ function render(data) {
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td>${task.title}</td>
-      <td>${task.start}</td>
-      <td>${task.end}</td>
-      <td>${task.status}</td>
-      <td><button onclick="del('${task.id}')">削除</button></td>
+      <td>${t.title}</td>
+      <td>${t.start}</td>
+      <td>${t.end}</td>
+      <td>${t.status}</td>
+      <td><button onclick="del('${t.id}')">削除</button></td>
     `;
 
     list.appendChild(tr);
   });
 }
 
-/* =========================
-   初回ロード
-========================= */
+/* 初期 */
 load();
+
+/* helpers */
+const titleEl = () => document.getElementById("title");
+const startEl = () => document.getElementById("start");
+const endEl = () => document.getElementById("end");
+const statusEl = () => document.getElementById("status");
+
+function clear(){
+  titleEl().value="";
+  startEl().value="";
+  endEl().value="";
+}
