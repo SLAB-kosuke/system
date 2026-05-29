@@ -468,8 +468,8 @@ function showPage(id){
   if(target){
 
     target.classList.add(
-      "active";
-
+      "active"
+      );
   }
 
 }
