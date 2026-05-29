@@ -2,8 +2,9 @@ const weekNames = [
   "日","月","火","水","木","金","土"
 ];
 
-
-/* 工程マスタ */
+/* =========================
+   工程マスタ
+========================= */
 
 const processMaster = {
 
@@ -38,24 +39,28 @@ const processMaster = {
 
 };
 
-
-/* 製品データ */
+/* =========================
+   製品データ
+========================= */
 
 let products = [];
 
-
-/* 選択中工程 */
+/* =========================
+   選択中工程
+========================= */
 
 let selectedProductIndex = null;
 let selectedProcessIndex = null;
 
-
-/* QR */
+/* =========================
+   QR
+========================= */
 
 let qr = null;
 
-
-/* QR開始 */
+/* =========================
+   QR開始
+========================= */
 
 function startQR(){
 
@@ -90,7 +95,6 @@ function startQR(){
       if(data.length < 2){
 
         alert("QR形式エラー");
-
         return;
 
       }
@@ -117,8 +121,9 @@ function startQR(){
 
 }
 
-
-/* 製品登録 */
+/* =========================
+   製品登録
+========================= */
 
 function registerProduct(){
 
@@ -138,7 +143,6 @@ function registerProduct(){
   if(!drawing || !serial){
 
     alert("図番とシリアル入力");
-
     return;
 
   }
@@ -146,7 +150,6 @@ function registerProduct(){
   if(!processMaster[drawing]){
 
     alert("工程マスタ未登録");
-
     return;
 
   }
@@ -174,41 +177,29 @@ function registerProduct(){
 
 }
 
-
-/* 工程生成 */
+/* =========================
+   工程生成
+========================= */
 
 function createProcesses(drawing){
 
   const master =
     processMaster[drawing];
 
-  let current =
-    new Date();
-
   let result = [];
 
   master.forEach(proc=>{
 
-    const start =
-      new Date(current);
-
-    current =
-      new Date(
-        current.getTime()
-        + proc.hours * 60 * 60 * 1000
-      );
-
-    const end =
-      new Date(current);
-
     result.push({
 
       name:proc.name,
+
       hours:proc.hours,
-      start,
-      end,
+
       status:"",
+
       actualStart:null,
+
       actualEnd:null
 
     });
@@ -219,8 +210,9 @@ function createProcesses(drawing){
 
 }
 
-
-/* 全更新 */
+/* =========================
+   全更新
+========================= */
 
 function renderAll(){
 
@@ -230,14 +222,11 @@ function renderAll(){
 
   renderActualTimeline();
 
-  renderWeek();
-
-  renderMonth();
-
 }
 
-
-/* 製品一覧 */
+/* =========================
+   製品一覧
+========================= */
 
 function renderProducts(){
 
@@ -297,15 +286,11 @@ function renderProducts(){
           <div>
 
             <div class="drawing">
-
               ${product.drawing}
-
             </div>
 
             <div class="serial">
-
               ${product.serial}
-
             </div>
 
           </div>
@@ -360,17 +345,6 @@ function renderProducts(){
             onclick="
               changeProcessStatus(
                 ${productIndex},
-                'hold'
-              )
-            "
-          >
-            保留
-          </button>
-
-          <button
-            onclick="
-              changeProcessStatus(
-                ${productIndex},
                 ''
               )
             "
@@ -388,8 +362,9 @@ function renderProducts(){
 
 }
 
-
-/* 状態ボタン */
+/* =========================
+   状態ボタン表示
+========================= */
 
 function openStatusButtons(
   productIndex,
@@ -427,8 +402,9 @@ function openStatusButtons(
 
 }
 
-
-/* 状態変更 */
+/* =========================
+   状態変更
+========================= */
 
 function changeProcessStatus(
   productIndex,
@@ -487,8 +463,9 @@ function changeProcessStatus(
 
 }
 
-
-/* ページ切替 */
+/* =========================
+   ページ切替
+========================= */
 
 function showPage(id){
 
@@ -515,8 +492,6 @@ function showPage(id){
 
 }
 
-
-/* 予定ガント */
 /* =========================
    予定ガント
 ========================= */
@@ -534,7 +509,10 @@ function renderPlanTimeline(){
 
   container.innerHTML = "";
 
-  createGanttHeader(container);
+  const header =
+    createGanttHeader();
+
+  container.appendChild(header);
 
   products.forEach(product=>{
 
@@ -559,86 +537,32 @@ function renderPlanTimeline(){
     line.className =
       "gantt-line";
 
-    let baseTime = null;
+    let currentLeft = 0;
 
     product.processes.forEach(proc=>{
 
-      if(!proc.actualStart){
-        return;
-      }
-
-      /* 最初の開始時間 */
-
-      if(!baseTime){
-
-        baseTime =
-          new Date(proc.actualStart);
-
-      }
-
-      const start =
-        new Date(baseTime);
-
-      const end =
-        new Date(
-          start.getTime()
-          + proc.hours
-          * 60
-          * 60
-          * 1000
-        );
-
-      const startHour =
-        start.getHours();
-
-      const startMinute =
-        start.getMinutes();
-
-      const left =
-        (
-          startHour * 40
-        )
-        +
-        (
-          startMinute / 60 * 40
-        );
-
-      const diffHours =
-        (
-          end - start
-        )
-        / 1000
-        / 60
-        / 60;
-
       const width =
-        diffHours * 40;
+        proc.hours * 40;
 
       const bar =
         document.createElement("div");
 
       bar.className =
-        "gantt-bar processing";
+        "gantt-bar plan-bar";
 
       bar.style.left =
-        `${left}px`;
+        `${currentLeft}px`;
 
       bar.style.width =
         `${width}px`;
 
       bar.innerHTML = `
-
-        ${product.serial}
-        -
         ${proc.name}
-
       `;
 
       line.appendChild(bar);
 
-      /* 次工程開始 */
-
-      baseTime = end;
+      currentLeft += width;
 
     });
 
@@ -651,7 +575,6 @@ function renderPlanTimeline(){
   });
 
 }
-
 
 /* =========================
    加工進捗
@@ -670,7 +593,10 @@ function renderActualTimeline(){
 
   container.innerHTML = "";
 
-  createGanttHeader(container);
+  const header =
+    createGanttHeader();
+
+  container.appendChild(header);
 
   products.forEach(product=>{
 
@@ -748,11 +674,7 @@ function renderActualTimeline(){
         `${width}px`;
 
       bar.innerHTML = `
-
-        ${product.serial}
-        -
         ${proc.name}
-
       `;
 
       line.appendChild(bar);
@@ -769,12 +691,11 @@ function renderActualTimeline(){
 
 }
 
-
 /* =========================
    ガントヘッダー
 ========================= */
 
-function createGanttHeader(container){
+function createGanttHeader(){
 
   const header =
     document.createElement("div");
@@ -796,20 +717,13 @@ function createGanttHeader(container){
   header.innerHTML =
     html;
 
-  container.appendChild(header);
+  return header;
 
 }
-/* 週間 */
 
-function renderWeek(){}
-
-
-/* 月間 */
-
-function renderMonth(){}
-
-
-/* ボタン */
+/* =========================
+   ボタン
+========================= */
 
 document
   .getElementById("registerBtn")
@@ -842,16 +756,18 @@ document
 
   });
 
-
-/* 初期表示 */
-
-renderAll();
-
-
-/* リアルタイム更新 */
+/* =========================
+   自動更新
+========================= */
 
 setInterval(()=>{
 
   renderActualTimeline();
 
-},1000);
+},60000);
+
+/* =========================
+   初期表示
+========================= */
+
+renderAll();
