@@ -484,12 +484,13 @@ function showPage(id){
 
 
 /* ガントチャート */
+/* 予定ガント */
 
-function renderTimeline(){
+function renderPlanTimeline(){
 
   const container =
     document.getElementById(
-      "timelineContainer"
+      "planTimeline"
     );
 
   if(!container){
@@ -498,120 +499,99 @@ function renderTimeline(){
 
   container.innerHTML = "";
 
-  for(let d=0; d<3; d++){
+  products.forEach(product=>{
 
-    const date =
-      new Date();
+    product.processes.forEach(proc=>{
 
-    date.setDate(
-      date.getDate()+d
-    );
-
-    const row =
-      document.createElement("div");
-
-    row.className =
-      "timeline-row";
-
-    const title =
-      document.createElement("div");
-
-    title.className =
-      "timeline-title";
-
-    title.innerHTML = `
-
-      ${date.getMonth()+1}月
-      ${date.getDate()}日
-      (${weekNames[date.getDay()]})
-
-    `;
-
-    row.appendChild(title);
-
-    const hours =
-      document.createElement("div");
-
-    hours.className =
-      "timeline-hours";
-
-    for(let h=0; h<24; h++){
-
-      const box =
+      const div =
         document.createElement("div");
 
-      box.className =
-        "hour-box";
+      div.className =
+        "process-bar";
 
-      box.innerHTML =
-        `<div>${h}</div>`;
+      div.innerHTML = `
 
-      products.forEach(product=>{
+        【予定】
+        ${product.serial}
+        -
+        ${proc.name}
+        :
+        ${proc.hours}h
 
-        product.processes.forEach(proc=>{
+      `;
 
-          if(!proc.actualStart){
-            return;
-          }
+      container.appendChild(div);
 
-         const start =
-  new Date(proc.actualStart);
+    });
 
-const end =
-  proc.actualEnd
-    ? new Date(proc.actualEnd)
-    : new Date();
-
-          const targetDate =
-            new Date(date);
-
-          targetDate.setHours(
-            h,
-            0,
-            0,
-            0
-          );
-
-          if(
-            targetDate >= start
-            &&
-            targetDate <= end
-          ){
-
-            const bar =
-              document.createElement("div");
-
-            bar.className =
-              `process-bar ${proc.status}`;
-
-            bar.innerHTML = `
-
-              ${product.serial}
-              <br>
-              ${proc.name}
-
-            `;
-
-            box.appendChild(bar);
-
-          }
-
-        });
-
-      });
-
-      hours.appendChild(box);
-
-    }
-
-    row.appendChild(hours);
-
-    container.appendChild(row);
-
-  }
+  });
 
 }
+/* 実績ガント */
 
+function renderActualTimeline(){
+
+  const container =
+    document.getElementById(
+      "actualTimeline"
+    );
+
+  if(!container){
+    return;
+  }
+
+  container.innerHTML = "";
+
+  products.forEach(product=>{
+
+    product.processes.forEach(proc=>{
+
+      if(!proc.actualStart){
+        return;
+      }
+
+      const start =
+        new Date(proc.actualStart);
+
+      const end =
+        proc.actualEnd
+        ? new Date(proc.actualEnd)
+        : new Date();
+
+      const hours =
+        (
+          (end - start)
+          / 1000
+          / 60
+          / 60
+        ).toFixed(1);
+
+      const div =
+        document.createElement("div");
+
+      div.className =
+        `process-bar ${proc.status}`;
+
+      div.innerHTML = `
+
+        【実績】
+        ${product.serial}
+        -
+        ${proc.name}
+
+        <br>
+
+        ${hours}h
+
+      `;
+
+      container.appendChild(div);
+
+    });
+
+  });
+
+}
 
 /* 週間 */
 
