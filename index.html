@@ -26,19 +26,17 @@
   <!-- ヘッダー -->
 
   <header class="header">
+
     生産管理システム
+
   </header>
 
 
-  <!-- 登録エリア -->
+  <!-- 登録 -->
 
   <section class="top-section">
 
-    <!-- QR読み込み -->
-
     <div id="reader"></div>
-
-    <!-- 図番 -->
 
     <input
       type="text"
@@ -46,24 +44,22 @@
       placeholder="図番"
     >
 
-    <!-- シリアル -->
-
     <input
       type="text"
       id="serialInput"
       placeholder="シリアル"
     >
 
-    <!-- 登録 -->
-
     <button id="registerBtn">
+
       製品登録
+
     </button>
 
-    <!-- QR -->
-
     <button id="scanBtn">
+
       QR読取
+
     </button>
 
   </section>
@@ -74,7 +70,9 @@
   <section class="list-section">
 
     <h2>
+
       製品一覧
+
     </h2>
 
     <div id="productList"></div>
@@ -87,19 +85,27 @@
   <section class="menu-section">
 
     <button data-page="planPage">
+
       予定ガント
+
     </button>
 
     <button data-page="actualPage">
+
       実績ガント
+
     </button>
 
     <button data-page="weekPage">
+
       週間表示
+
     </button>
 
     <button data-page="monthPage">
+
       月間表示
+
     </button>
 
   </section>
@@ -113,7 +119,9 @@
   >
 
     <h2>
+
       予定ガント
+
     </h2>
 
     <div id="planTimeline"></div>
@@ -129,7 +137,9 @@
   >
 
     <h2>
+
       実績ガント
+
     </h2>
 
     <div id="actualTimeline"></div>
@@ -145,7 +155,9 @@
   >
 
     <h2>
+
       週間表示
+
     </h2>
 
     <div
@@ -164,7 +176,9 @@
   >
 
     <h2>
+
       月間表示
+
     </h2>
 
     <div id="monthContainer"></div>
@@ -172,7 +186,7 @@
   </section>
 
 
-  <!-- QRライブラリ -->
+  <!-- QR -->
 
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 
