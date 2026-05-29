@@ -1,773 +1,129 @@
-const weekNames = [
-  "日","月","火","水","木","金","土"
-];
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  getDocs,
+  deleteDoc,
+  doc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 /* =========================
-   工程マスタ
+   Firebase設定（ここだけ自分のに変更）
 ========================= */
+const firebaseConfig = {
+  apiKey: "XXXX",
+  authDomain: "XXXX",
+  projectId: "XXXX"
+};
 
-const processMaster = {
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const col = collection(db, "tasks");
 
-  "A100":[
+/* =========================
+   表示スケール
+========================= */
+const PX_PER_HOUR = 20;
 
-    {
-      name:"荒①",
-      hours:36
-    },
+/* =========================
+   追加
+========================= */
+window.addTask = async function () {
+  const title = document.getElementById("title").value;
+  const start = document.getElementById("start").value;
+  const end = document.getElementById("end").value;
+  const status = document.getElementById("status").value;
 
-    {
-      name:"仕上①",
-      hours:4
-    },
+  if (!title || !start || !end) return;
 
-    {
-      name:"荒②",
-      hours:8
-    },
+  await addDoc(col, { title, start, end, status });
 
-    {
-      name:"仕上②",
-      hours:2
-    },
+  document.getElementById("title").value = "";
+  document.getElementById("start").value = "";
+  document.getElementById("end").value = "";
 
-    {
-      name:"洗浄・出荷",
-      hours:3.5
-    }
-
-  ]
-
+  load();
 };
 
 /* =========================
-   製品データ
+   削除
 ========================= */
-
-let products = [];
+window.del = async function (id) {
+  await deleteDoc(doc(db, "tasks", id));
+  load();
+};
 
 /* =========================
-   選択中工程
+   読み込み
 ========================= */
+async function load() {
+  const snap = await getDocs(col);
 
-let selectedProductIndex = null;
-let selectedProcessIndex = null;
+  const data = snap.docs.map(d => ({
+    id: d.id,
+    ...d.data()
+  }));
 
-/* =========================
-   QR
-========================= */
-
-let qr = null;
-
-/* =========================
-   QR開始
-========================= */
-
-function startQR(){
-
-  if(!qr){
-
-    qr = new Html5Qrcode("reader");
-
-  }
-
-  qr.start(
-
-    {
-      facingMode:"environment"
-    },
-
-    {
-      fps:10,
-      qrbox:250
-    },
-
-    function(qrText){
-
-      qr.stop().then(()=>{
-
-        qr.clear();
-
-      });
-
-      const data =
-        qrText.split(",");
-
-      if(data.length < 2){
-
-        alert("QR形式エラー");
-        return;
-
-      }
-
-      document
-        .getElementById("drawingInput")
-        .value =
-        data[0];
-
-      document
-        .getElementById("serialInput")
-        .value =
-        data[1];
-
-      registerProduct();
-
-    },
-
-    function(error){
-
-    }
-
-  );
-
+  render(data);
 }
 
 /* =========================
-   製品登録
+   描画
 ========================= */
+function render(data) {
+  const gantt = document.getElementById("gantt");
+  const list = document.getElementById("list");
 
-function registerProduct(){
-
-  const drawing =
-    document
-      .getElementById("drawingInput")
-      .value
-      .trim()
-      .toUpperCase();
-
-  const serial =
-    document
-      .getElementById("serialInput")
-      .value
-      .trim();
-
-  if(!drawing || !serial){
-
-    alert("図番とシリアル入力");
-    return;
-
-  }
-
-  if(!processMaster[drawing]){
-
-    alert("工程マスタ未登録");
-    return;
-
-  }
-
-  const processes =
-    createProcesses(drawing);
-
-  products.push({
-
-    drawing,
-    serial,
-    processes
-
-  });
-
-  document
-    .getElementById("drawingInput")
-    .value = "";
-
-  document
-    .getElementById("serialInput")
-    .value = "";
-
-  renderAll();
-
-}
-
-/* =========================
-   工程生成
-========================= */
-
-function createProcesses(drawing){
-
-  const master =
-    processMaster[drawing];
-
-  let result = [];
-
-  master.forEach(proc=>{
-
-    result.push({
-
-      name:proc.name,
-
-      hours:proc.hours,
-
-      status:"",
-
-      actualStart:null,
-
-      actualEnd:null
-
-    });
-
-  });
-
-  return result;
-
-}
-
-/* =========================
-   全更新
-========================= */
-
-function renderAll(){
-
-  renderProducts();
-
-  renderPlanTimeline();
-
-  renderActualTimeline();
-
-}
-
-/* =========================
-   製品一覧
-========================= */
-
-function renderProducts(){
-
-  const list =
-    document.getElementById(
-      "productList"
-    );
-
-  if(!list){
-    return;
-  }
-
+  gantt.innerHTML = "";
   list.innerHTML = "";
 
-  products.forEach(
-    (product,productIndex)=>{
+  if (data.length === 0) return;
 
-      const card =
-        document.createElement("div");
+  const base = new Date(Math.min(...data.map(d => new Date(d.start))));
 
-      card.className =
-        "product-card";
+  data.forEach(task => {
+    const start = new Date(task.start);
+    const end = new Date(task.end);
 
-      let processHTML = "";
+    const left = (start - base) / (1000 * 60 * 60) * PX_PER_HOUR;
+    const width = (end - start) / (1000 * 60 * 60) * PX_PER_HOUR;
 
-      product.processes.forEach(
-        (proc,processIndex)=>{
+    const row = document.createElement("div");
+    row.className = "gantt-row";
 
-          processHTML += `
+    row.innerHTML = `
+      <div class="gantt-label">${task.title}</div>
 
-            <div
-              class="
-                process-box
-                ${proc.status}
-              "
+      <div class="gantt-track">
 
-              onclick="
-                openStatusButtons(
-                  ${productIndex},
-                  ${processIndex}
-                )
-              "
-            >
-
-              ${proc.name}
-
-            </div>
-
-          `;
-
-        });
-
-      card.innerHTML = `
-
-        <div class="product-top">
-
-          <div>
-
-            <div class="drawing">
-              ${product.drawing}
-            </div>
-
-            <div class="serial">
-              ${product.serial}
-            </div>
-
-          </div>
-
+        <div class="gantt-bar ${task.status}"
+          style="left:${left}px;width:${width}px">
+          ${task.title}
         </div>
 
-        <div class="process-row">
+        <div class="planned-end"
+          style="left:${left + width}px"></div>
 
-          ${processHTML}
-
-        </div>
-
-        <div
-          class="status-buttons"
-          id="status-${productIndex}"
-        >
-
-          <button
-            onclick="
-              changeProcessStatus(
-                ${productIndex},
-                'processing'
-              )
-            "
-          >
-            開始
-          </button>
-
-          <button
-            onclick="
-              changeProcessStatus(
-                ${productIndex},
-                'stop'
-              )
-            "
-          >
-            中断
-          </button>
-
-          <button
-            onclick="
-              changeProcessStatus(
-                ${productIndex},
-                'complete'
-              )
-            "
-          >
-            完了
-          </button>
-
-          <button
-            onclick="
-              changeProcessStatus(
-                ${productIndex},
-                ''
-              )
-            "
-          >
-            クリア
-          </button>
-
-        </div>
-
-      `;
-
-      list.appendChild(card);
-
-    });
-
-}
-
-/* =========================
-   状態ボタン表示
-========================= */
-
-function openStatusButtons(
-  productIndex,
-  processIndex
-){
-
-  document
-    .querySelectorAll(
-      ".status-buttons"
-    )
-    .forEach(el=>{
-
-      el.style.display =
-        "none";
-
-    });
-
-  selectedProductIndex =
-    productIndex;
-
-  selectedProcessIndex =
-    processIndex;
-
-  const target =
-    document.getElementById(
-      `status-${productIndex}`
-    );
-
-  if(target){
-
-    target.style.display =
-      "flex";
-
-  }
-
-}
-
-/* =========================
-   状態変更
-========================= */
-
-function changeProcessStatus(
-  productIndex,
-  status
-){
-
-  if(
-    selectedProcessIndex === null
-  ){
-    return;
-  }
-
-  const proc =
-    products
-      [productIndex]
-      .processes
-      [selectedProcessIndex];
-
-  proc.status = status;
-
-  /* 開始 */
-
-  if(
-    status === "processing"
-    &&
-    !proc.actualStart
-  ){
-
-    proc.actualStart =
-      new Date();
-
-  }
-
-  /* 完了 */
-
-  if(
-    status === "complete"
-  ){
-
-    proc.actualEnd =
-      new Date();
-
-  }
-
-  /* クリア */
-
-  if(status === ""){
-
-    proc.actualStart = null;
-
-    proc.actualEnd = null;
-
-  }
-
-  renderAll();
-
-}
-
-/* =========================
-   ページ切替
-========================= */
-
-function showPage(id){
-
-  document
-    .querySelectorAll(".page")
-    .forEach(page=>{
-
-      page.classList.remove(
-        "active"
-      );
-
-    });
-
-  const target =
-    document.getElementById(id);
-
-  if(target){
-
-    target.classList.add(
-      "active"
-    );
-
-  }
-
-}
-
-/* =========================
-   予定ガント
-========================= */
-
-function renderPlanTimeline(){
-
-  const container =
-    document.getElementById(
-      "planTimeline"
-    );
-
-  if(!container){
-    return;
-  }
-
-  container.innerHTML = "";
-
-  const header =
-    createGanttHeader();
-
-  container.appendChild(header);
-
-  products.forEach(product=>{
-
-    const row =
-      document.createElement("div");
-
-    row.className =
-      "gantt-row";
-
-    const label =
-      document.createElement("div");
-
-    label.className =
-      "gantt-label";
-
-    label.innerHTML =
-      product.serial;
-
-    const line =
-      document.createElement("div");
-
-    line.className =
-      "gantt-line";
-
-    let currentLeft = 0;
-
-    product.processes.forEach(proc=>{
-
-      const width =
-        proc.hours * 40;
-
-      const bar =
-        document.createElement("div");
-
-      bar.className =
-        "gantt-bar plan-bar";
-
-      bar.style.left =
-        `${currentLeft}px`;
-
-      bar.style.width =
-        `${width}px`;
-
-      bar.innerHTML = `
-        ${proc.name}
-      `;
-
-      line.appendChild(bar);
-
-      currentLeft += width;
-
-    });
-
-    row.appendChild(label);
-
-    row.appendChild(line);
-
-    container.appendChild(row);
-
-  });
-
-}
-
-/* =========================
-   加工進捗
-========================= */
-
-function renderActualTimeline(){
-
-  const container =
-    document.getElementById(
-      "actualTimeline"
-    );
-
-  if(!container){
-    return;
-  }
-
-  container.innerHTML = "";
-
-  const header =
-    createGanttHeader();
-
-  container.appendChild(header);
-
-  products.forEach(product=>{
-
-    const row =
-      document.createElement("div");
-
-    row.className =
-      "gantt-row";
-
-    const label =
-      document.createElement("div");
-
-    label.className =
-      "gantt-label";
-
-    label.innerHTML =
-      product.serial;
-
-    const line =
-      document.createElement("div");
-
-    line.className =
-      "gantt-line";
-
-    product.processes.forEach(proc=>{
-
-      if(!proc.actualStart){
-        return;
-      }
-
-      const start =
-        new Date(proc.actualStart);
-
-      const endTime =
-        proc.actualEnd
-        ? new Date(proc.actualEnd)
-        : new Date();
-
-      const startHour =
-        start.getHours();
-
-      const startMinute =
-        start.getMinutes();
-
-      const left =
-        (
-          startHour * 40
-        )
-        +
-        (
-          startMinute / 60 * 40
-        );
-
-      const diffHours =
-        (
-          endTime - start
-        )
-        / 1000
-        / 60
-        / 60;
-
-      const width =
-        diffHours * 40;
-
-      const bar =
-        document.createElement("div");
-
-      bar.className =
-        `gantt-bar ${proc.status}`;
-
-      bar.style.left =
-        `${left}px`;
-
-      bar.style.width =
-        `${width}px`;
-
-      bar.innerHTML = `
-        ${proc.name}
-      `;
-
-      line.appendChild(bar);
-
-    });
-
-    row.appendChild(label);
-
-    row.appendChild(line);
-
-    container.appendChild(row);
-
-  });
-
-}
-
-/* =========================
-   ガントヘッダー
-========================= */
-
-function createGanttHeader(){
-
-  const header =
-    document.createElement("div");
-
-  header.className =
-    "gantt-header";
-
-  let html =
-    "<div>製品</div>";
-
-  for(let h=0; h<24; h++){
-
-    html += `
-      <div>${h}</div>
+      </div>
     `;
 
-  }
+    gantt.appendChild(row);
 
-  header.innerHTML =
-    html;
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${task.title}</td>
+      <td>${task.start}</td>
+      <td>${task.end}</td>
+      <td>${task.status}</td>
+      <td><button onclick="del('${task.id}')">削除</button></td>
+    `;
 
-  return header;
-
+    list.appendChild(tr);
+  });
 }
 
 /* =========================
-   ボタン
+   初回ロード
 ========================= */
-
-document
-  .getElementById("registerBtn")
-  .addEventListener(
-    "click",
-    registerProduct
-  );
-
-document
-  .getElementById("scanBtn")
-  .addEventListener(
-    "click",
-    startQR
-  );
-
-document
-  .querySelectorAll("[data-page]")
-  .forEach(btn=>{
-
-    btn.addEventListener(
-      "click",
-      ()=>{
-
-        showPage(
-          btn.dataset.page
-        );
-
-      }
-    );
-
-  });
-
-/* =========================
-   自動更新
-========================= */
-
-setInterval(()=>{
-
-  renderActualTimeline();
-
-},60000);
-
-/* =========================
-   初期表示
-========================= */
-
-renderAll();
+load();
