@@ -554,11 +554,13 @@ function renderTimeline(){
             return;
           }
 
-          const start =
-            new Date(proc.actualStart);
+         const start =
+  new Date(proc.actualStart);
 
-          const end =
-            new Date(proc.end);
+const end =
+  proc.actualEnd
+    ? new Date(proc.actualEnd)
+    : new Date();
 
           const targetDate =
             new Date(date);
