@@ -445,11 +445,15 @@ function changeProcessStatus(
       new Date();
 
   }
+ if(status === ""){
+
+    proc.actualStart = null;
+
+  }
 
   renderAll();
 
 }
-
 
 /* ページ切替 */
 
