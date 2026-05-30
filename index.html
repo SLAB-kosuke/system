@@ -1,152 +1,202 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>工程管理システム（復旧版）</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-<style>
-body {
-  margin: 0;
-  font-family: Arial, "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
-  background: #f4f6f8;
-}
+<title>作業ログ入力</title>
 
-.container { padding: 16px; }
+<link rel="stylesheet" href="style.css">
 
-.form {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-  margin-bottom: 10px;
-}
-
-input, select, button {
-  padding: 6px;
-  font-size: 13px;
-}
-
-.mode {
-  margin: 10px 0;
-}
-
-.gantt-container {
-  background: #fff;
-  padding: 10px;
-  border-radius: 8px;
-}
-
-.gantt-row {
-  position: relative;
-  height: 42px;
-  border-bottom: 1px solid #eee;
-}
-
-.gantt-label {
-  position: absolute;
-  width: 120px;
-  left: 0;
-  line-height: 42px;
-  font-size: 12px;
-  font-weight: bold;
-}
-
-.gantt-track {
-  margin-left: 130px;
-  position: relative;
-  height: 100%;
-  background: #fafafa;
-}
-
-.gantt-bar {
-  position: absolute;
-  height: 20px;
-  top: 11px;
-  border-radius: 5px;
-  color: #fff;
-  font-size: 11px;
-  padding: 2px 5px;
-}
-
-.yotei { background:#3498db; }
-.tyuushi { background:#f39c12; }
-.kanryo { background:#2ecc71; }
-.horyu { background:#95a5a6; }
-
-.end-line {
-  position: absolute;
-  width: 2px;
-  top: 0;
-  bottom: 0;
-  background: red;
-}
-
-table {
-  width: 100%;
-  margin-top: 15px;
-  background: #fff;
-  border-collapse: collapse;
-}
-
-th, td {
-  padding: 8px;
-  border-bottom: 1px solid #eee;
-  font-size: 12px;
-}
-</style>
+<script src="https://unpkg.com/html5-qrcode"></script>
 </head>
-
 <body>
-<div class="container">
 
-<h3>工程管理（復旧版）</h3>
+<header>
+  <h1>作業ログ入力</h1>
+  <a href="logs.html" class="logs-link">
+    ログ一覧
+  </a>
+</header>
 
-<!-- QR（復活用枠だけ） -->
-<div>
-  <input placeholder="QR（後で復活可能）" id="qr">
-</div>
+<main>
 
-<!-- 入力 -->
-<div class="form">
-  <input id="title" placeholder="工程名">
-  <input id="start" type="datetime-local">
-  <input id="end" type="datetime-local">
+  <!-- QR読取 -->
 
-  <select id="status">
-    <option value="yotei">予定</option>
-    <option value="tyuushi">中断</option>
-    <option value="kanryo">完了</option>
-    <option value="horyu">保留</option>
-  </select>
+  <section class="card">
 
-  <button onclick="addTask()">追加</button>
-</div>
+    <h2>QRコード読取</h2>
 
-<!-- 表示切替（復活） -->
-<div class="mode">
-  <button onclick="mode='week';load()">週間</button>
-  <button onclick="mode='month';load()">月間</button>
-  <button onclick="mode='all';load()">全体</button>
-</div>
+    <div id="reader"></div>
 
-<!-- ガント -->
-<div id="gantt" class="gantt-container"></div>
+    <button id="startQrBtn" class="primary-btn">
+      QR読取開始
+    </button>
 
-<!-- 一覧 -->
-<table>
-  <thead>
-    <tr>
-      <th>工程</th>
-      <th>開始</th>
-      <th>終了</th>
-      <th>状態</th>
-      <th>削除</th>
-    </tr>
-  </thead>
-  <tbody id="list"></tbody>
-</table>
+    <button id="stopQrBtn" class="secondary-btn">
+      QR停止
+    </button>
 
-</div>
+  </section>
+
+  <!-- 読取結果 -->
+
+  <section class="card">
+
+    <h2>製品情報</h2>
+
+    <div class="input-group">
+
+      <label>図番</label>
+
+      <input
+        type="text"
+        id="partNo"
+        readonly
+      >
+
+    </div>
+
+    <div class="input-group">
+
+      <label>シリアル</label>
+
+      <input
+        type="text"
+        id="serial"
+        readonly
+      >
+
+    </div>
+
+  </section>
+
+  <!-- 工程 -->
+
+  <section class="card">
+
+    <h2>工程選択</h2>
+
+    <div id="processButtons" class="button-grid">
+
+      <button class="process-btn" data-process="荒①">
+        荒①
+      </button>
+
+      <button class="process-btn" data-process="仕上①">
+        仕上①
+      </button>
+
+      <button class="process-btn" data-process="荒②">
+        荒②
+      </button>
+
+      <button class="process-btn" data-process="仕上②">
+        仕上②
+      </button>
+
+      <button class="process-btn" data-process="検査">
+        検査
+      </button>
+
+    </div>
+
+  </section>
+
+  <!-- 状態 -->
+
+  <section class="card">
+
+    <h2>状態記録</h2>
+
+    <div class="button-grid">
+
+      <button
+        class="status-btn start"
+        data-status="開始"
+      >
+        開始
+      </button>
+
+      <button
+        class="status-btn pause"
+        data-status="中断"
+      >
+        中断
+      </button>
+
+      <button
+        class="status-btn resume"
+        data-status="再開"
+      >
+        再開
+      </button>
+
+      <button
+        class="status-btn complete"
+        data-status="完了"
+      >
+        完了
+      </button>
+
+      <button
+        class="status-btn hold"
+        data-status="保留"
+      >
+        保留
+      </button>
+
+    </div>
+
+  </section>
+
+  <!-- 選択状況 -->
+
+  <section class="card">
+
+    <h2>現在の選択</h2>
+
+    <div class="selected-info">
+
+      <div>
+
+        <span class="label">
+          工程：
+        </span>
+
+        <span id="selectedProcess">
+          未選択
+        </span>
+
+      </div>
+
+      <div>
+
+        <span class="label">
+          状態：
+        </span>
+
+        <span id="selectedStatus">
+          未選択
+        </span>
+
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- 保存メッセージ -->
+
+  <section class="card">
+
+    <div id="message">
+      QR読取後に工程を選択してください
+    </div>
+
+  </section>
+
+</main>
 
 <script type="module" src="script.js"></script>
 
